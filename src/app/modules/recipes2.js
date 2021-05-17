@@ -12,14 +12,14 @@ import {treatUnits} from '../utils/process-api-data';
 import {checkDoublonsBeforeAddingToArray} from '../utils/process-api-data';
 import {checkString} from '../utils/process-api-data';
 
+
 import {trieSearch} from '../utils/trie-search';
 
 
 /* ================================================== */
 /* MODULE IN CHARGE OF ALL COMPONENTS + LOGIC */
 /* ================================================== */
-
-export const RecipeModule = (function() {
+export const RecipeModule2 = (function() {
     
     // private part of module
     
@@ -116,7 +116,6 @@ export const RecipeModule = (function() {
     function processCurrentMainSearch(currentSearchTerm) {
         // console.log(currentSearchTerm);
         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
-            // search(recipes, currentSearchTerm); // launch search for term in recipes list
             trieSearch(currentSearchTerm, recipes); // launch search for term in recipes list
         }
     }

@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 // Trie.js - super simple JS implementation
 // https://en.wikipedia.org/wiki/Trie
 // https://github.com/joshjung/trie-search/blob/master/src/TrieSearch.js
@@ -10,39 +11,84 @@ const recipes = [
     { 'id': 2, 'name': 'poisson des iles', 'time':30 },
 ];
 
-// we start with the TrieNode
-// we start with the TrieNode
+
+
+// create  =>  NEW MAP()
+let searchTerm = 'lim';
+
+// => make new tree from searchTerm:  
+                                //    L 
+                                //    |
+                                //    I 
+                                //    |
+                                //    M 
+// Each recipe : 
+// search term in recipe.name
+// search term in recipe.ingredients
+// search term in recipe.ustensils
+
+
+// IF MATCH FOUND :
+// ex: MATCH :  'lim' => 'limonade'
+// TREE add : 
+                                //    O 
+                                //    |
+                                //    N 
+                                //    |
+                                //    A 
+                                //    |
+                                //    D
+                                //    |
+                                //    E
+                        // -------------------        
+                        // (end of this tree node) 
+                        // -------------------   
+        //   INSERT in MAP : { 'limonade' : [ {recipe} ] }
+
+// continue search in each recipe.name
+// every new match for word : 
+// IF : same word => add recipe to 'limonade' map
+// IF : different word 
+// ex - 'lim ' => 'lime'
+// 'lim' tree insert new node : 
+                                //    L 
+                                //    |
+                                //    I 
+                                //    |
+                                //    M 
+                                //    |
+                                //    E <---
+                        // -------------------        
+                        // (end of this tree node) 
+                        // -------------------  
+        //   INSERT in MAP : { 'lime' : [ {recipe} ] }
+
+
 class TrieNode {
     constructor(key) {
         this.key = key;
-        // we keep a reference to parent
-        this.parent = null;
-        // we have hash of children
-        this.children = {};
-        // check to see if the node is at the end
-        this.end = false;
+        this.parent = null;// we keep a reference to parent
+        this.children = {};// we have hash of children
+        this.end = false; // check to see if the node is at the end
     }
-    // iterates through the parents to get the word.
-    // time complexity: O(k), k = word length
+    // iterate through the parents to get the word - time complexity: O(n) ( n = word length )
     getWord() {
         var output = [];
         var node = this;
 
         while (node !== null) {
             output.unshift(node.key);
-            node = node.parent; console.log('node=', node);
+            node = node.parent;
         }
         return output.join('');
     }
 }
-
 // -----------------------------------------
 
-// we implement Trie with just a simple root with null value.
+// implement Trie with just a simple root with null value.
 class Trie {
     constructor() { this.root = new TrieNode(null); }
-    // inserts a word into the trie.
-    // time complexity: O(k), k = word length
+    // INSERT A WORD IN THE TRIE - time complexity: O(n) ( n = word length )
     insert(word) {
         console.log('WORD==', word);
         var node = this.root; // start at the root
@@ -61,8 +107,30 @@ class Trie {
             }
         }
     }
-    // check if it contains a whole word.
-    // time complexity: O(k), k = word length
+    insertMore(word, value, node){
+        node = this.root; // start at the root
+        node['value'] = node['value'] || [];
+        node['value'].push(value);
+        
+        let wordArr = word.split('');
+        let k = wordArr.shift();
+        node[k] = node[k] || {}; 
+        for (var i = 0; i < wordArr.length; i++) { // check to see if character node exists in children.
+            if (!node.children[wordArr[i]]) { // if it doesn't exist, we then create it.
+                node.children[wordArr[i]] = new TrieNode(word[i]); console.log('TrieNode word==',  node.children[word[i]]);
+                // we also assign the parent to the child node.
+                node.children[wordArr[i]].parent = node;
+            }
+            // proceed to the next depth in the trie.
+            node = node.children[wordArr[i]];
+            // finally, we check to see if it's the last word.
+            if (i == wordArr.length - 1) { // if it is, we set the end flag to true.
+                node.end = true;
+            }
+        }
+    }
+
+    // check if it contains a whole word - time complexity: O(n) ( n = word length )
     contains(word) {
         var node = this.root;
         // for every character in the word
@@ -76,8 +144,7 @@ class Trie {
         // we finished going through all the words, but is it a whole word?
         return node.end;
     }
-    // returns every word with given prefix
-    // time complexity: O(p + n), p = prefix length, n = number of child paths
+    // returns every word with given prefix - time complexity: O(p + n), p = prefix length, n = number of child paths
     find(prefix) {
         var node = this.root;
         var output = [];
@@ -96,8 +163,8 @@ class Trie {
 }
 
 // recursive function to find all words in the given node.
-function findAllWords(node, arr) { // base case, if node is at a word, push to output
-    if (node.end) {
+function findAllWords(node, arr) { 
+    if (node.end) { // base case, if node is at a word, push to output
         arr.unshift(node.getWord());
     }
     // iterate through each children, call recursive findAllWords
@@ -109,27 +176,63 @@ function findAllWords(node, arr) { // base case, if node is at a word, push to o
 // -----------------------------------------
 
 // instantiate our trie
-var trie = new Trie();
+// var trie = new Trie();
 
-// insert few values
 // trie.insert("hello");
 // console.log(trie);
 // trie.insert("helium");
-// check contains method
 // console.log(trie.contains("helium")); // true
-// console.log(trie.contains("kickass")); // false
-
-// check find method
+//
 // console.log(trie.find("hel")); // [ 'helium', 'hello' ]
 //console.log(trie.find("hell")); // [ 'hello' ]
 
-
-recipes.forEach(r => { trie.insert( [ r.name, r.time, r.id] ); });
+// var trie = new Trie();
+// recipes.forEach(r => { trie.insert(r.name); console.log('trie======', trie);} );
 
 // console.log(trie.contains("limonade"));
-console.log(trie.find({ name:'poisson cru' }));
+// console.log(trie.find('citron'));
 
 
+let resultsMap = new Map();
+
+/* export function trieSearch(searchTerm, recipes) {
+
+    var trie = new Trie();
+    trie.insert(searchTerm); // => make new tree from searchTerm  
+
+    recipes.forEach(recipe => {    // Each recipe : 
+        let recipeName = recipe.name;
+
+        if ( !trie.contains(recipeName)) {      // if recipe name not in trie
+            trie.insert(recipeName);            // add it to trie
+        } else { 
+            trie.find(recipeName);              // else return match
+            resultsMap.set(recipeName, recipe); // + store name and recipe object into map
+        }
+        resultsMap.set(recipeName, recipe);
+        console.log('resultsMap==', resultsMap);
+        console.log('TRIE==', trie);
+        return resultsMap;
+    });
+} */
+
+var trieTest = new Trie();
+let search = 'poi';
+let search2 = 'lim';
+let search3 = 'choc';
+let value1 = { 'id': 1, 'name': 'limonade', 'time':10  };
+let value2 = { 'id': 3, 'name': 'mousse au chocolat', 'time':50 };
+let value3 = { 'id': 2, 'name': 'poisson des iles', 'time':30 };
+
+trieTest.insertMore(search,value1);
+trieTest.insertMore(search2, value2);
+trieTest.insertMore(search3, value3);
+console.log('trietest:', trieTest);
+
+console.log('trietest VALUE:', trieTest.root.value);
+console.log('trietest Nodes:', trieTest.root);
+
+debugger;
 
 
 

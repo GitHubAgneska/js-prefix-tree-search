@@ -30,6 +30,7 @@
   "homepage": "https://github.com/GitHubAgneska/HAgnesGenay_7_19112020#readme",
   "dependencies": {
     "@babel/runtime": "^7.13.17",
+    "@hediet/debug-visualizer-data-extraction": "^0.13.1",
     "lodash": "^4.17.21",
     "sass": "^1.32.8"
   },
