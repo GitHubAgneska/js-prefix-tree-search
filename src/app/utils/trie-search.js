@@ -70,6 +70,7 @@ class TrieNode {
         this.parent = null;// we keep a reference to parent
         this.children = {};// we have hash of children
         this.end = false; // check to see if the node is at the end
+        this.parentRecipeObjects = new Map(); // if 'isEnd' true  ( end of word) : store   word:KEY + array containing objects:VALUE
     }
     // iterate through the parents to get the word - time complexity: O(n) ( n = word length )
     getWord() {
@@ -107,14 +108,14 @@ class Trie {
             }
         }
     }
+
     insertMore(word, value, node){
         node = this.root; // start at the root
-        node['value'] = node['value'] || [];
-        node['value'].push(value);
-        
+
         let wordArr = word.split('');
-        let k = wordArr.shift();
-        node[k] = node[k] || {}; 
+        let k = wordArr.shift(); // first element of wordArr
+        node[k] = node[k] || {};
+
         for (var i = 0; i < wordArr.length; i++) { // check to see if character node exists in children.
             if (!node.children[wordArr[i]]) { // if it doesn't exist, we then create it.
                 node.children[wordArr[i]] = new TrieNode(word[i]); console.log('TrieNode word==',  node.children[word[i]]);
@@ -126,6 +127,8 @@ class Trie {
             // finally, we check to see if it's the last word.
             if (i == wordArr.length - 1) { // if it is, we set the end flag to true.
                 node.end = true;
+                node['value'] = node['value'] || []; // insert recipe object only 
+                node['value'].push(value);
             }
         }
     }
@@ -218,7 +221,7 @@ let resultsMap = new Map();
 
 var trieTest = new Trie();
 let search = 'poi';
-let search2 = 'lim';
+let search2 = 'limonade';
 let search3 = 'choc';
 let value1 = { 'id': 1, 'name': 'limonade', 'time':10  };
 let value2 = { 'id': 3, 'name': 'mousse au chocolat', 'time':50 };
