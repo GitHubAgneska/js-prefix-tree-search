@@ -2,32 +2,29 @@
 /* ================================================== */
 /* ALL METHODS USED TO PROCESS INCOMING API DATA
 /* ================================================== */
-
-// recipe -> 'ingredients' : [ { 'ingredient': 'sucre', 'quantity': 300, 'UNIT': 'grammes'} ] => 'grammes' => 'g'
+// make it all lowercase
+// remove accents, parentheses, ponctuation
+// determine if made of several words
 
 const parenthesesRegExp = /[()]/g;
-
 const endsWithCommaOrPeriodRegex = /\.|,$/i;
-const containsPunctuationRegex = /[.,/#!$%\^&\*;:{}=\-_`~()]/g;
-
+const containsPunctuationRegex = /[.,/#!$%^&*;:{}=\-_`~()]/g;
 const containsApostropheRegex = /'/g;
 const containsWhiteSpace = /\s/;
-
 const containsAnyAccentRegex = /[èéêëîâàä]/g;
 const eContainsAccentRegex = /[èéêë]/g;
 const iContainsAccentRegex = /[î]/g;
 const containsWhiteSpaceRegex = /\s/;
 
-// standard string processing:
-// make it all lowercase, remove accents, ponctuation
+// standard string processing
 export function checkString(str) {
     str = str.toLowerCase();
-   //  str = removeSpecialChars(str);
     str = replaceAccents(str);
-    str = removePonctuation(str);
+    str = removePunctuation(str);
     return str;
 }
 
+// additional processing before adding to PREFIX TRIE
 // determine if a string is made of several words
 // => replace white space(s) with '-'
 // => replace ' apostrophe(s) with '-' as well
@@ -44,7 +41,7 @@ export function checkStringIsSeveralWords(str){
     }
 
     if (inputIsSeveralWords) {
-        console.log('STRING IS SEVERAL WORDS!');
+        // console.log('STRING IS SEVERAL WORDS!');
         let indexOfWhiteSpace = str.search(containsWhiteSpace);
         let result = str.replace(str.charAt(indexOfWhiteSpace), '-');
         
@@ -53,30 +50,14 @@ export function checkStringIsSeveralWords(str){
 }
 
 // STRINGS --------------------------------------------------------------------------------------------------
-// process string to escape/remove parentheses -> ex: 'thon rouge (ou blanc)' => 'thon rouge ou blanc'
-export function removeSpecialChars(str){
-        
-        let parenthesesRegExp =/[()]/g;
-        let containsPar = parenthesesRegExp.test(str);
-        
-        if ( containsPar) {
-            let index = str.search(parenthesesRegExp);
-            let res = str.replace(str.charAt(index), '');
-            return removeSpecialChars(res);
 
-        } else { return str; }
-}
-
-// replace accented 'e' char with regular 'e' char - ex: 'crême' -> 'creme'
+// replace accented e', 'a', 'i' char with regular char - ex: 'crême' -> 'creme'
 export function replaceAccents(str) {
     const containsAnyAccentRegex = /[èéêëîâàä]/g;
     const eContainsAccentRegex = /[èéêë]/g;
     const iContainsAccentRegex = /[î]/g;
     const aContainsAccentRegex = /[âàä]/g;
-    
-    /* let containsIaccent = iContainsAccentRegex.test(str);
-    let containsEaccent = eContainsAccentRegex.test(str);
-    let containsAaccent = aContainsAccentRegex.test(str); */
+
     let containsAnyAccent = containsAnyAccentRegex.test(str);
     
     if (containsAnyAccent) {  
@@ -97,10 +78,9 @@ export function replaceAccents(str) {
     } else { return str; }
 }
 
-// remove ponctuation at the end of a string
-// or comma in the string
-export function removePonctuation(str) {
-    let punctuationless = str.replace(/[.,/#!$%\^&\*;:{}=\-_`~()]/g,'');
+// remove ponctuation
+export function removePunctuation(str) {
+    let punctuationless = str.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,'');
     return str = punctuationless.replace(/\s{2,}/g,' '); // remove additional spaces added in place of punctation
 }
 

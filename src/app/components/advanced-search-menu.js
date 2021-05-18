@@ -4,7 +4,7 @@
 import {MenuListItem} from '../components/menu-listItem';
 import {RecipeModule} from '../modules/recipes';
 import {searchIntoCurrentList} from '../utils/search-algo';
-import {removeSpecialChars} from '../utils/process-api-data';
+import {removePunctuation} from '../utils/process-api-data';
 
 export class CollapsingMenu extends HTMLElement{
     constructor(categoryName, categoryElements){
@@ -289,7 +289,7 @@ export class CollapsingMenu extends HTMLElement{
 
             if ( containsParenthesesRegex.test(searchTerm) ){ // ---------- to review
                 console.log('contains parentheses');
-                removeSpecialChars(searchTerm);
+                removePunctuation(searchTerm);
             }
             console.log('searchTerm after remove==', searchTerm);
             let tagText = document.createTextNode(searchTerm);

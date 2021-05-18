@@ -44,7 +44,7 @@ class Node {
     }
 }
 
-// process input before adding to tree
+
 // make it all lowercase
 // remove accents, parentheses, ponctuation
 // determine if made of sevearl words
@@ -54,44 +54,52 @@ class Trie {
     constructor(){
         this.root = new Node();
 
-        let fullWord = ''; // store word along processing to nodes - should be reset at each new input word
-        
-        // ADD A WORD - ( here, as iterating through all recipes to add words to the tree, also pass current recipe as param)
-        this.add = function(input, recipeObject, node = this.root) {
-            
-            console.log('input==', input); console.log('recipeObject==', recipeObject); console.log('node==', node);
+        // store current word
+        let fullWord = '';
+        this.setCurrentWord = function(input) { fullWord = input; };
+        this.getCurrentWord = function() { return fullWord; };
 
+        // store current recipe object
+        let currentRecipeObject;
+        this.setCurrentRecipeObject = function(recipeObject) { currentRecipeObject = recipeObject; };
+        this.getCurrentRecipeObject = function() { return currentRecipeObject; };
+
+        // ADD A LETTER - ( here, as iterating through all recipes to add words to the tree, also pass current recipe as param)
+        this.add = function(input, node = this.root) {
+
+            // NO MORE CHAR TO PROCESS : end of this tree branch
             if ( input.length === 0 ) { // end of word - fullWord must be complete
                 node.setEnd();
-                console.log('FULLWORD==', fullWord); // check fullword has been retrieved along
+                let fullWord = this.getCurrentWord(); // console.log('FULLWORD==', fullWord); //
 
                 // case 1 : first time this word is added to tree:
                 // parentRecipeObjects map has been created but is empty
-                if ( !node.parentRecipeObjects.has(fullWord)){ // so input key does not exist yet
+                if ( !node.parentRecipeObjects.has(fullWord)){ // (fullword should be the key in this map)
                     console.log('parentRecipeObjects does NOT have this key yet !==');
                     let arrOfRecipes = []; // set up array value to store recipes this word comes from
-                    arrOfRecipes.push(recipeObject); // push recipe object word stems from
-                    
-                    node.parentRecipeObjects.set(fullWord,arrOfRecipes); //  set up map with : key:word - value: array of object recipes
+                    node.parentRecipeObjects.set(fullWord,arrOfRecipes); // set up map with : key:word - value: array of object recipes
+
+                    let currentRecipe = this.getCurrentRecipeObject();
+                    arrOfRecipes.push(currentRecipe); // push recipe object word stems from
                     console.log(node.parentRecipeObjects);
                 
                     // case 2 : the word does already exist in tree : parentRecipeObjects contains key with this word
                 } else if (node.parentRecipeObjects.has(fullWord)){ // (check anyway)
                     console.log('parentRecipeObjects DOES have this key !');
-                    let arrOfRecipes = node.parentRecipeObjects.get(fullWord);
-                    arrOfRecipes.push(recipeObject); // only push current recipe Object to array
+                    let folderOfRecipesKey = node.parentRecipeObjects.get(fullWord);
+                    let currentRecipe = this.getCurrentRecipeObject();
+                    folderOfRecipesKey.arrOfRecipes.push(currentRecipe); // only push current recipe Object to array
                     console.log(node.parentRecipeObjects);
                 }
                 return;
 
+            // MORE CHAR TO PROCESS
             } else if (!node.keys.has(input[0])) { // key letter is not a node key yet
                 node.keys.set(input[0], new Node()); // create it (= new map entry (key:letter, value: new node)
-                fullWord += input[0]; // start storing word as entering tree
                 // then add recursively all following letters to this node key
                 return this.add(input.substring(1), node.keys.get(input[0]));  // ---- TO REVIEW : Substring iterates over a string in O(n) time. 2. Substring creates a copy of the string (because it is immutable). So it needs O(n) time for each iteration and O(n - 1) = O(n) space for each iteration, which makes it O(n^2) time and space complexity when adding.
                                                                                // ---  > use instead : array.split('') + iteration ( O(1) )
             } else {    // key letter IS a node key already
-                fullWord += input.substring(1); // continue storing letters of word as entering tree                                         
                 return this.add(input.substring(1), node.keys.get(input[0])); // add each following letter to existing node
             }
         };
@@ -132,22 +140,20 @@ export function trieTreeSearch(searchTerm, recipes) {
 
     var trie = new Trie();
 
-    recipes.forEach(recipe => {    // Each recipe :
+    recipes.forEach(recipe => {
         
-        if (recipe.id === 36 || recipe.id === 27) {
-            let node;
-            let recipeName = recipe.name;
-            recipeName = checkString(recipeName);
-            recipeName = checkStringIsSeveralWords(recipeName);
-
-            let recipeObj =  recipe;
-
-            trie.add(recipeName, recipeObj, node);
-            console.log('tree=', trie);
-
-        }
+        let node;
+        let recipeName = recipe.name;
+        recipeName = checkString(recipeName);
+        recipeName = checkStringIsSeveralWords(recipeName);
+        trie.setCurrentWord(recipeName);
+        trie.setCurrentRecipeObject(recipe);
+        
+        if ( !trie.contains(recipeName)) {
+            trie.add(recipeName, node);
+        } else { console.log('word already exist in tree! ');}
+        console.log('trie root=', trie.root);
     });
-
 }
 
 
