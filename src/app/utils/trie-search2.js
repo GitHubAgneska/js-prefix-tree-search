@@ -23,31 +23,23 @@ import {checkString, checkStringIsSeveralWords} from '../utils/process-api-data'
 class Node {
     constructor() {
         this.keys = new Map(); // with : KEY:letter - VALUE:next node containing letter -> = all first letters of any new word
+        this.parent = null;// we keep a reference to parent
         this.end = false;  // end of word ?
-        this.setEnd = function () { 
-            this.end = true;
-            this.parentRecipeObjects = new Map(); // if 'isEnd' ( end of word) : store :  word:KEY + array containing objects:VALUE
-        };
+        this.setEnd = function () { this.end = true; };
         this.isEnd = function () { return this.end; };
+        this.parentRecipeObjects = new Map(); // if 'isEnd' ( end of word) : store :  word:KEY + array containing objects:VALUE
         
         // iterate through the parents to get the word - time complexity: O(n) ( n = word length )
-        this.getWord == function() {
+        this.getWord = function(node) {
             var output = [];
-            var node = this;
-
             while (node !== null) {
-                output.unshift(node.key); // retrieve each letter from branch
+                output.unshift(node.keys.key); // retrieve each letter from branch
                 node = node.parent;
             }
             return output.join('');
         };
     }
 }
-
-
-// make it all lowercase
-// remove accents, parentheses, ponctuation
-// determine if made of sevearl words
 
 
 class Trie {
@@ -99,9 +91,17 @@ class Trie {
                 // then add recursively all following letters to this node key
                 return this.add(input.substring(1), node.keys.get(input[0]));  // ---- TO REVIEW : Substring iterates over a string in O(n) time. 2. Substring creates a copy of the string (because it is immutable). So it needs O(n) time for each iteration and O(n - 1) = O(n) space for each iteration, which makes it O(n^2) time and space complexity when adding.
                                                                                // ---  > use instead : array.split('') + iteration ( O(1) )
-            } else {    // key letter IS a node key already
+            } else {    // key letter IS a node key already (node.keys.has(input[0])
+                // if letter is a 'bifurcation', should retrieve current recipe object => suggestions
+                if (node.keys.size > 1) {
+                    let currentRecipe = this.getCurrentRecipeObject();
+                    let arrOfRecipes = []; // set up array value to store recipes this word is part of
+                    let currentPartialWord = node.getWord(node); console.log('PARTIAL WORD==', currentPartialWord);
+                    node.parentRecipeObjects.set(currentPartialWord,arrOfRecipes);
+                    arrOfRecipes.push(currentRecipe); // push recipe object word stems from
+                }
                 return this.add(input.substring(1), node.keys.get(input[0])); // add each following letter to existing node
-            }
+            } 
         };
 
         // CHECK WORD IS IN TRIE
