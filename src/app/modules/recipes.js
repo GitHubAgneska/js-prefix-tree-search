@@ -12,7 +12,7 @@ import {treatUnits} from '../utils/process-api-data';
 import {checkDoublonsBeforeAddingToArray} from '../utils/process-api-data';
 import {checkString} from '../utils/process-api-data';
 
-import {trieSearch} from '../utils/trie-search';
+import {trieTreeSearch} from '../utils/trie-search2';
 
 
 /* ================================================== */
@@ -117,7 +117,7 @@ export const RecipeModule = (function() {
         // console.log(currentSearchTerm);
         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list
-            trieSearch(currentSearchTerm, recipes); // launch search for term in recipes list
+            trieTreeSearch(currentSearchTerm, recipes); // launch search for term in recipes list
         }
     }
 
