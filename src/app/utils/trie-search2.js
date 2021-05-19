@@ -17,7 +17,7 @@ import {checkString, checkStringIsSeveralWords} from '../utils/process-api-data'
 
 // Using Map data structure, allows built-in methods such as 'has(key)', 'get(key), 'set()', 'size', 'delete', 'clear'
 // keys in Maps can be of any type ( ≠ Object = strings only)
-// iterators = same as Object's : map.keys, map.values, map.entries, 
+// iterators = same as Object's : map.keys, map.values, map.entries,  ( => return an iterable ARRAY )
 // spread operator : [ ...myMap ]
 
 class Node {
@@ -50,11 +50,23 @@ class Trie {
         let recipesForWord = [];
         // go to end of node : if search term is partial and match in tree is found : retrieve all possible results (from node end)
         this.goToLastNode = function(node) {
-            while (node.keys.isEnd === false) {
-                let nextNode = node.keys.keys[0]; // go to next node
+            console.log('CURRENT NODE ==', node);
+            let currentNode = node;
+            
+            while ( currentNode.end === false ) {
+                console.log('IS END NODE ==', currentNode.end);
+
+                let nextNode = currentNode.keys; // go to next node
                 node = nextNode;
+                console.log('NEXT NODE ==', node);
+            }      
+        };
+
+        this.getRecipesFromNode = function(node) {
+            if ( node.parentRecipeObjects.entries ) {
+                recipesForWord.push(node.parentRecipeObjects.entries);
             }
-            recipesForWord.push(node.parentRecipeObjects.entries);
+            return recipesForWord;
         };
 
         // store current incoming word
@@ -128,8 +140,30 @@ class Trie {
                     word = word.substr(1); // next letter of word to check
                 }
             }
-            return ( node.keys.has(word)); // true || false
-           // return ( node.keys.has(word) && node.keys.get(word).isEnd() ); // true || false
+            return ( node.keys.has(word) && node.keys.get(word).isEnd() ); // true || false
+        };
+
+        // SEARCH TERM IN TRIE 
+        this.searchInTrie = function(searchterm) {
+
+            let node = this.root;
+            let recipes;
+
+            while (searchterm.length > 1 ) {
+                if (!node.keys.has(searchterm[0])) {
+                    return false;
+                } else {
+                    node = node.keys.get(searchterm[0]); // place cursor on matching letter of root
+                    searchterm = searchterm.substr(1); // next letter of searchterm to check
+
+                    // ' if ( node.keys.has(searchterm)' : matching word might be partial : so get all possible word endings
+                    // go to end of node (or nodeS if multiple) to get recipe.name / object
+                    let lastNode = this.goToLastNode(node);
+                    // nrecipes = this.getRecipesFromNode(lastNode);
+                    // console.log('RECIPES CORRESP to SEARCH TERM==',recipes);
+                }
+            }
+            return recipes ? recipes : 'no match found!'; 
         };
 
 
@@ -220,8 +254,8 @@ function getCurrentTrie() { return currentTrie; }
 export function searchInTree(searchTerm) {
 
     let recipesTrie = getCurrentTrie();
+    recipesTrie.searchInTrie(searchTerm);
 
-    console.log(recipesTrie.contains(searchTerm));
 }
 
 
