@@ -49,17 +49,38 @@ class Trie {
         // store objectsRecipe attached to nodes
         let recipesForWord = [];
         // go to end of node : if search term is partial and match in tree is found : retrieve all possible results (from node end)
-        this.goToLastNode = function(node) {
-            console.log('CURRENT NODE ==', node);
-            let currentNode = node;
-            
-            while ( currentNode.end === false ) {
-                console.log('IS END NODE ==', currentNode.end);
+        this.goToLastNode = function(node, stemNodeLetter) {
+            console.log('CURRENT NODE ==', node);   // Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
+            console.log('NODE STEM LETTER ==', stemNodeLetter);
 
-                let nextNode = currentNode.keys; // go to next node
-                node = nextNode;
-                console.log('NEXT NODE ==', node);
-            }      
+            let currentNode = node; // cursor is on first node from root
+            let currentNodeValues = currentNode.keys; // first node inner maps
+            
+            let goDeeper = function(currentNodeValues) {
+
+                currentNodeValues.forEach( value => {   // for each inner map of node
+                    
+                    currentNode = value;                // current node = this map
+                    console.log('currentNode value== ', currentNode);  // => Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), getWord: getWord(node) }
+
+                    currentNodeValues = currentNode.keys;
+                    console.log('currentNodeValues===',currentNodeValues);  //=>  Map(3) { i → {…}, r → {…}, s → {…} }
+                    
+                    if (currentNodeValues.has( 'end' === true )) {   // if values contain end
+                        console.log('END!!');
+                        console.log(currentNodeValues.parentRecipeObjects.entries()); // return recipes
+                    }
+                    else { // else : enter keys of this map
+                        let nextNodeValues = currentNodeValues.keys;
+                        console.log('nextNodeValues===',nextNodeValues);
+                        // goDeeper(nextNodeValues);
+                    }
+                });
+            };
+
+            goDeeper(currentNodeValues);
+            
+                
         };
 
         this.getRecipesFromNode = function(node) {
@@ -154,11 +175,13 @@ class Trie {
                     return false;
                 } else {
                     node = node.keys.get(searchterm[0]); // place cursor on matching letter of root
+                    let stemNodeLetter = searchterm[0];
+
                     searchterm = searchterm.substr(1); // next letter of searchterm to check
 
                     // ' if ( node.keys.has(searchterm)' : matching word might be partial : so get all possible word endings
                     // go to end of node (or nodeS if multiple) to get recipe.name / object
-                    let lastNode = this.goToLastNode(node);
+                    this.goToLastNode(node, stemNodeLetter);
                     // nrecipes = this.getRecipesFromNode(lastNode);
                     // console.log('RECIPES CORRESP to SEARCH TERM==',recipes);
                 }
