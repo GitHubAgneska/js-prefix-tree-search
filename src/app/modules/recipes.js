@@ -12,7 +12,7 @@ import {treatUnits} from '../utils/process-api-data';
 import {checkDoublonsBeforeAddingToArray} from '../utils/process-api-data';
 import {checkString} from '../utils/process-api-data';
 
-import {trieTreeSearch} from '../utils/trie-search2';
+import {mapDataToTree, searchInTree} from '../utils/trie-search2';
 
 
 /* ================================================== */
@@ -94,6 +94,10 @@ export const RecipeModule = (function() {
             // all recipes casted, ordered as coming from api (default)
             recipesList.push(newRecipe);
         });
+
+        // ADD ALL DATA TO TREE  ---- // TO REVIEW : should not contain a foreach too 
+        mapDataToTree(recipes);
+
         setResults(recipesList);
         initAdvancedSearchSection();
         setUpAdvancedSearchView(arrayOfCategoryElements); // default == all recipes (= array of arrays [appliancesList, ustensilsList, ingredientsList])
@@ -117,7 +121,7 @@ export const RecipeModule = (function() {
         // console.log(currentSearchTerm);
         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list
-            trieTreeSearch(currentSearchTerm, recipes); // launch search for term in recipes list
+            searchInTree(currentSearchTerm); // launch search for term in recipes list
         }
     }
 
