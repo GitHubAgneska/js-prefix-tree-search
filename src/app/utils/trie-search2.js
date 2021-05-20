@@ -50,37 +50,32 @@ class Trie {
         let recipesForWord = [];
         // go to end of node : if search term is partial and match in tree is found : retrieve all possible results (from node end)
         this.goToLastNode = function(node, stemNodeLetter) {
-            console.log('CURRENT NODE ==', node);   // Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
-            console.log('NODE STEM LETTER ==', stemNodeLetter);
+            // console.log('CURRENT NODE ==', node);   // FIRST MAP from root - Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
+            // console.log('NODE STEM LETTER ==', stemNodeLetter);
 
             let currentNode = node; // cursor is on first node from root
-            let currentNodeValues = currentNode.keys; // first node inner maps
+            let currentNodeValues = currentNode.keys; // first node inner maps : Object { keys: Map(3),.. }
             
             let goDeeper = function(currentNodeValues) {
 
-                currentNodeValues.forEach( value => {   // for each inner map of node
+                for (const [key, value] of currentNodeValues.entries()) {
+                    let currentKey = key; // letter
+                    let currentValue = value; // map
                     
-                    currentNode = value;                // current node = this map
-                    console.log('currentNode value== ', currentNode);  // => Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), getWord: getWord(node) }
-
-                    currentNodeValues = currentNode.keys;
-                    console.log('currentNodeValues===',currentNodeValues);  //=>  Map(3) { i → {…}, r → {…}, s → {…} }
+                    console.log('KEY==',key, 'VALUE===', value); // KEY== m VALUE===Object { keys: Map(1), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), 
+                    console.log('VALUE.END==', value.end);
                     
-                    if (currentNodeValues.has( 'end' === true )) {   // if values contain end
-                        console.log('END!!');
-                        console.log(currentNodeValues.parentRecipeObjects.entries()); // return recipes
+                    if (value.end) { 
+                        console.log('END');
+                        recipesForWord = value.parentRecipeObjects;
+                        console.log('recipesForWord==', recipesForWord);
+                    
+                    } else { // else go deeper until findind end
+                        goDeeper(currentValue.keys);
                     }
-                    else { // else : enter keys of this map
-                        let nextNodeValues = currentNodeValues.keys;
-                        console.log('nextNodeValues===',nextNodeValues);
-                        // goDeeper(nextNodeValues);
-                    }
-                });
+                }
             };
-
             goDeeper(currentNodeValues);
-            
-                
         };
 
         this.getRecipesFromNode = function(node) {
