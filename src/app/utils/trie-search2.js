@@ -46,37 +46,56 @@ class Trie {
     constructor(){
         this.root = new Node();
 
-        // store objectsRecipe attached to nodes
+        // store objectsRecipe attached to nodes when retrieved
         let recipesForWord = [];
+        let nodeEnd = false;
+        let currentKeyIsDone = false;
+        
         // go to end of node : if search term is partial and match in tree is found : retrieve all possible results (from node end)
-        this.goToLastNode = function(node, stemNodeLetter) {
+        this.goToLastNode = function goToLastNode(node, currentNodeLetter) {
             // console.log('CURRENT NODE ==', node);   // FIRST MAP from root - Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
-            // console.log('NODE STEM LETTER ==', stemNodeLetter);
+            console.log('NODE STEM LETTER ==', currentNodeLetter);
+            let originalNodeLetter = currentNodeLetter;// where we left off in search: 3rd letter of matching = potential start for different words
+            let originalStemNode = node;
 
-            let currentNode = node; // cursor is on first node from root
-            let currentNodeValues = currentNode.keys; // first node inner maps : Object { keys: Map(3),.. }
-            
-            let goDeeper = function(currentNodeValues) {
+            let currentNode = node; // where we left off in search: 3rd letter of matching
+            let currentNodeValues = currentNode.keys; // node inner maps : letter : M ->  Object { keys: Map(3): E {} - O{} - .. }
 
+            let goFurther = function goFurther(currentNode) { // go further for this node letter : M  -> next : E -> next: O
                 for (const [key, value] of currentNodeValues.entries()) {
+                    goDeeper(currentNodeValues);
+                }
+            };
+            
+            let goDeeper = function goDeeper(currentNodeValues) { // go deeper for this node letter : E - enter 'E' keys (if any) / then enter 'O' keys ( -> 'N' )
+
+                for (const [key, value] of currentNodeValues.entries()) { // for each inner map (letter) of node : L-I-M  -e   / - o
+
                     let currentKey = key; // letter
                     let currentValue = value; // map
-                    
-                    console.log('KEY==',key, 'VALUE===', value); // KEY== m VALUE===Object { keys: Map(1), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), 
+    
+                    // console.log('KEY==',key, 'VALUE===', value); // KEY== m VALUE===Object { keys: Map(1), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), 
                     console.log('VALUE.END==', value.end);
                     
-                    if (value.end) { 
+                    if (value.end) { // end of branch for this match : L-I-M -- -> E
                         console.log('END');
-                        recipesForWord = value.parentRecipeObjects;
-                        console.log('recipesForWord==', recipesForWord);
-                    
-                    } else { // else go deeper until findind end
+                        
+                        recipesForWord.push(value.parentRecipeObjects); // =  map containing 0 to n objects
+                        // console.log('recipesForWord==', recipesForWord);
+                        return recipesForWord; // = array of maps containing 0 to n objects
+                        
+                        // go back to node letter to find other occurences - l- i- M - <-
+                        
+                    } else { // else go deeper until finding end
                         goDeeper(currentValue.keys);
                     }
                 }
+                console.log('RECIPES FOR THIS WORD==',recipesForWord );
             };
-            goDeeper(currentNodeValues);
+            goFurther(originalStemNode);
+            
         };
+
 
         this.getRecipesFromNode = function(node) {
             if ( node.parentRecipeObjects.entries ) {
@@ -161,25 +180,41 @@ class Trie {
 
         // SEARCH TERM IN TRIE 
         this.searchInTrie = function(searchterm) {
-
-            let node = this.root;
+            // CASE 1 - letter in at the beginning of the word - ex: searchterm 'citron' =>  will find 'citron-presse' ≠ won't find 'tarte-au-citron'
+            let node = this.root;  
             let recipes;
+            let currentNodeLetter;
 
-            while (searchterm.length > 1 ) {
-                if (!node.keys.has(searchterm[0])) {
+            let bifurcationNode; // store
+            console.log('START SEARCHING FOR==', searchterm);
+            // console.log('FIRST LETTER OF SEARCH ==', stemLetter);
+
+            let searchingFor = '';
+
+            while (searchterm.length > 1 ) {  // while letters in searchterm
+
+                currentNodeLetter = searchterm[0];
+
+                if (!node.keys.has(currentNodeLetter)) {
                     return false;
+                
                 } else {
-                    node = node.keys.get(searchterm[0]); // place cursor on matching letter of root
-                    let stemNodeLetter = searchterm[0];
+                    node = node.keys.get(currentNodeLetter); // as long as node letter is matching letter of term, continue: go for 1st or next matching letter in branch
+                    
+                    searchingFor += currentNodeLetter; // store letter
+                    console.log('currently searchingFor==', searchingFor);
 
-                    searchterm = searchterm.substr(1); // next letter of searchterm to check
+                    if (searchingFor.length === 3) {
+                        // ' if ( node.keys.has(searchterm)' : matching word might be partial : so get all possible word endings
+                        // go to end of node (or nodeS if multiple) to get recipe.name / object
+                        this.goToLastNode(node, currentNodeLetter); // node = where the 3rd matching letter is : go find end(s) for this match
+                    }
 
-                    // ' if ( node.keys.has(searchterm)' : matching word might be partial : so get all possible word endings
-                    // go to end of node (or nodeS if multiple) to get recipe.name / object
-                    this.goToLastNode(node, stemNodeLetter);
-                    // nrecipes = this.getRecipesFromNode(lastNode);
-                    // console.log('RECIPES CORRESP to SEARCH TERM==',recipes);
+                    searchterm = searchterm.substr(1);   // next letter of searchterm to check
                 }
+                
+                // recipes = this.getRecipesFromNode(lastNode);
+                // console.log('RECIPES CORRESP to SEARCH TERM==',recipes);
             }
             return recipes ? recipes : 'no match found!'; 
         };
