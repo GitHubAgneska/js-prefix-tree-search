@@ -12,7 +12,7 @@ import {treatUnits} from '../utils/process-api-data';
 import {checkDoublonsBeforeAddingToArray} from '../utils/process-api-data';
 import {checkString} from '../utils/process-api-data';
 
-import {mapDataToTree, searchInTree} from '../utils/trie-search2';
+import {mapDataToTree, searchInTree, searchLetterInTrie} from '../utils/trie-search2';
 
 
 /* ================================================== */
@@ -118,6 +118,10 @@ export const RecipeModule = (function() {
     // SEARCH FUNCTIONALITY : MAIN SEARCH ==================================================================================================
     // RETRIEVE current search term and call search method
     function processCurrentMainSearch(currentSearchTerm) {
+
+        searchLetterInTrie(currentSearchTerm, currentSearchTerm);
+        
+
         // console.log(currentSearchTerm);
         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list

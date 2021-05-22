@@ -170,29 +170,45 @@ class Trie {
         };
 
         // SEARCH A LETTER IN THE WHOLE TRIE
-        this.inspectWholeTrie = function inspectWholeTrie(letter, searchterm, node = this.root) {
+        this.inspectWholeTrie = function inspectWholeTrie(letter, searchterm) {
             
-            for (const [key, value] of node.keys ) {    // -------- // inspect each stem node (trie width)
-                let currentLetter = key, currentLetterOwnMap = value;
+            let node = this.root;
+            
 
-                if (!currentLetter === letter) {
-                    // go deeper
-                    for (const [key, value] of currentLetterOwnMap) {  // -------- // inspect each stem node inner nodes (trie depth)
-                        let currentInnerLetter = key, currentInnerLetterOwnMap = value;
+            let inspectNodeWidth = function inspectNodeWidth (letter, node) {
+
+                for (const [key, value] of node.keys ) {    // -------- // inspect each stem node (trie width)
+                    
+                    let currentLetter = key, currentLetterOwnMap = value;
+                    console.log('TRIE WIDTH ==>', 'CURRENT LETTER ==', currentLetter);
+    
+                    if ( currentLetter !== letter ) {
                         
-                        if (!currentInnerLetter === letter) {
-                            node = currentInnerLetterOwnMap;
-                            // inspectWholeTrie(letter, searchterm, node);
-                            return;
+                        // go deeper
+                        for (const [key, value] of currentLetterOwnMap.keys) {  // -------- // inspect each stem node inner nodes (trie depth)
+                            
+                            let currentInnerLetter = key, currentInnerLetterOwnMap = value;
+                            console.log('--- TRIE DEPTH ==>', 'CURRENT INNER  LETTER ==', currentInnerLetter);
+                            
+                            if ( currentLetter !== letter ) { 
+                                node = currentInnerLetterOwnMap;
+                                inspectNodeWidth(letter, node);  // -------- // inspect each letter of node map (trie width)
+                                
+                            } else if ( currentLetter === letter) {
+                                console.log('*****--- TRIE DEPTH ==> LETTER MATCH==',currentLetter, ':', letter);
+                                
+                                // checkRestOfSearchTermMatches(letter, searchterm);
+                            }
                         }
-                        else { 
-                            console.log('LETTER MATCH==',currentLetter, ':', letter);
-                            console.log('IN NODE: ', node);
-                            // checkRestOfSearchTermMatches(letter, searchterm); 
-                        }
+                    
+                    } else if ( currentLetter === letter) {
+                        console.log('######----TRIE WIDTH ==> LETTER MATCH==',currentLetter, ':', letter);
+                        
+                        // checkRestOfSearchTermMatches(letter, searchterm);
                     }
                 }
-            }
+            };
+            inspectNodeWidth(letter, node);
         };
         function checkRestOfSearchTermMatches(letter, searchterm) { return; }
 
@@ -326,6 +342,12 @@ export function searchInTree(searchTerm) {
     let recipesTrie = getCurrentTrie();
     recipesTrie.searchInTrie(searchTerm);
 
+}
+
+
+export function searchLetterInTrie(letter, searchterm, node){
+    let recipesTrie = getCurrentTrie();
+    recipesTrie.inspectWholeTrie(letter, searchterm, node);
 }
 
 
