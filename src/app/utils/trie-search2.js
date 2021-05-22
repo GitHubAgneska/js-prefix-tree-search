@@ -1,5 +1,5 @@
 
-import { lt } from 'lodash';
+
 import {checkString, checkStringIsSeveralWords} from '../utils/process-api-data';
 
 // TRIE TREE of PREFIX TREE
@@ -30,6 +30,8 @@ class Node {
         this.isEnd = function () { return this.end; };
         this.parentRecipeObjects = new Map(); // if 'isEnd' ( end of word) : store :  word:KEY + array containing objects:VALUE
         
+        this.isASubtree = false; // ( same as 'isEnd === false' ==>  'if node.keys.size === 0' - meaning node has NO children -> is a 'LEAF' )
+
         // iterate through the parents to get the word - time complexity: O(n) ( n = word length )
         this.getWord = function(node) {
             var output = [];
@@ -105,7 +107,7 @@ class Trie {
         this.setCurrentRecipeObject = function(recipeObject) { currentRecipeObject = recipeObject; };
         this.getCurrentRecipeObject = function() { return currentRecipeObject; };
 
-        // ADD A LETTER - ( here, as iterating through all recipes to add words to the tree, also pass current recipe as param)
+        // ADD A WORD - ( here, as iterating through all recipes to add words to the tree, also pass current recipe as param)
         this.add = function(input, node = this.root) {
 
             // NO MORE CHAR TO PROCESS : end of this tree branch
@@ -169,53 +171,76 @@ class Trie {
             return ( node.keys.has(word) && node.keys.get(word).isEnd() ); // true || false
         };
 
-        // SEARCH A LETTER IN THE WHOLE TRIE
+        // SEARCH A LETTER IN THE WHOLE TRIE - used with 'searchInTrie' function :  if a letter IS NOT AT TRIE ROOT (meaning it might be part of a composed word - ex- 'chocolat' in 'mousse-au-chocolat')
+        // this function locates nodes containing matching letter, then send them back to 'searchInTrie' that will verify further against a searchterm
         this.inspectWholeTrie = function inspectWholeTrie(letter, searchterm) {
             
             let node = this.root;
-            
+            let currentMatchingNode;
 
             let inspectNodeWidth = function inspectNodeWidth (letter, node) {
 
-                for (const [key, value] of node.keys ) {    // -------- // inspect each stem node (trie width)
+                for (const [key, value] of node.keys ) {    // -------- // inspect each node (trie width)
                     
                     let currentLetter = key, currentLetterOwnMap = value;
                     console.log('TRIE WIDTH ==>', 'CURRENT LETTER ==', currentLetter);
     
                     if ( currentLetter !== letter ) {
                         
-                        // go deeper
-                        for (const [key, value] of currentLetterOwnMap.keys) {  // -------- // inspect each stem node inner nodes (trie depth)
+                        for (const [key, value] of currentLetterOwnMap.keys) {  // -------- // go deeper : inspect each node inner nodes (trie depth)
                             
                             let currentInnerLetter = key, currentInnerLetterOwnMap = value;
-                            console.log('--- TRIE DEPTH ==>', 'CURRENT INNER  LETTER ==', currentInnerLetter);
+                            console.log('---> CHILD--- TRIE DEPTH ==>', 'CURRENT INNER  LETTER ==', currentInnerLetter);
                             
-                            if ( currentLetter !== letter ) { 
+                            if ( currentInnerLetter !== letter ) { 
                                 node = currentInnerLetterOwnMap;
-                                inspectNodeWidth(letter, node);  // -------- // inspect each letter of node map (trie width)
+                                inspectNodeWidth(letter, node);  // -------- // REPEAT : inspect each letter of node map (trie width)
                                 
-                            } else if ( currentLetter === letter) {
-                                console.log('*****--- TRIE DEPTH ==> LETTER MATCH==',currentLetter, ':', letter);
-                                
-                                // checkRestOfSearchTermMatches(letter, searchterm);
+                            } else if ( currentInnerLetter === letter) { // ---- MATCHING 1st lETTER : call check next ones
+                                console.log('*****--- TRIE DEPTH ==> LETTER MATCH==',currentInnerLetter, ':', letter);
+                                currentMatchingNode = currentInnerLetterOwnMap; // ( currentLetter === node.key)
+                                checkRestOfSearchTermMatches(currentMatchingNode, letter, searchterm);
+                                continue; // keep searching rest of trie
                             }
                         }
-                    
-                    } else if ( currentLetter === letter) {
+                    } else if ( currentLetter === letter) { // ---- MATCHING 1st lETTER : call check next ones
                         console.log('######----TRIE WIDTH ==> LETTER MATCH==',currentLetter, ':', letter);
-                        
-                        // checkRestOfSearchTermMatches(letter, searchterm);
+                        currentMatchingNode = node; // ( currentLetter === node.key)
+                        checkRestOfSearchTermMatches(currentMatchingNode, letter, searchterm);
+                        continue; // keep searching rest of trie
                     }
                 }
             };
             inspectNodeWidth(letter, node);
         };
-        function checkRestOfSearchTermMatches(letter, searchterm) { return; }
+        // WHEN THE REQUESTED LETTER IS FOUND IN TRIE, STARTING FROM NODE CONTAINING LETTER, 
+        // CHECK FOLLOWING NODES ( while searchterm contains letters to check against)
+        function checkRestOfSearchTermMatches(currentMatchingNode, letter, searchterm) {
+
+            let currentNode = currentMatchingNode;
+            let restOfSearchterm = searchterm.substr(1, searchterm.length); // first letter was found already : look for the rest of it
+            let currentLetter;
+
+            while (restOfSearchterm.length > 1 ) {  // while letters in searchterm
+
+                currentLetter = searchterm[0];
+
+                if (!currentNode.keys.has(currentLetter) ) { return; } // no letter matching in node keys : abort search
+                
+                else {
+                    currentNode = currentNode.keys.get(currentLetter); // letter is found in node keys : place cursor on matching letter
+                    searchterm = searchterm.substr(1);   // next letter of searchterm to check
+                }
+            }
+        }
+
+
 
         // SEARCH TERM IN TRIE 
-        this.searchInTrie = function(searchterm) {
+        this.searchInTrie = function(searchterm, node) {
 
-            let node = this.root;  
+            if (node == undefined) { node = this.root; }
+            
             let recipes;
             let currentNodeLetter;
             let searchingFor = '';
@@ -228,14 +253,14 @@ class Trie {
 
                 currentNodeLetter = searchterm[0];
 
-                if (!node.keys.has(currentNodeLetter)) { // CASE where : letter IS NOT at the beginning of the word - but could be FURTHER in the branch - ex: searchterm 'citron' =>  'tarte-au-citron'
+                if (!node.keys.has(currentNodeLetter)) { // CASE where : letter IS NOT at the beginning of the word (NOT AT TRIE ROOT)- but could be FURTHER in the branch - ex: searchterm 'citron' =>  'tarte-au-citron'
                     console.log('ROOT DOES NOT CONTAIN LETTER, BUT SEARCHING REST OF THE TRIE');
                     // continue checking each following node to find FIRST LETTER of search term
-                    this.inspectWholeTrie(currentNodeLetter, searchterm, node );
+                    this.inspectWholeTrie(currentNodeLetter); // should return an array of nodes containing this letter
 
                 } 
                 
-                else { // CASE where : letter IS at the beginning of the word - ex: searchterm 'citron' =>  will find 'citron-presse' ≠ won't find 'tarte-au-citron'
+                else { // CASE where : letter IS at the beginning of the word (AT TRIE ROOT)- ex: searchterm 'citron' =>  will find 'citron-presse' ≠ won't find 'tarte-au-citron'
                     node = node.keys.get(currentNodeLetter); // as long as node letter is matching letter of term, continue: go for 1st or next matching letter in branch
                     
                     searchingFor += currentNodeLetter; // store letter
