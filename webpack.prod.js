@@ -3,7 +3,8 @@ const common = require('./webpack.common');
 const { merge } = require('webpack-merge');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCssWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+// const OptimizeCssWebpackPlugin = require('optimize-css-assets-webpack-plugin'); Webpack5 => replaced with following
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin'); // present by default in node-modules
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -18,7 +19,8 @@ module.exports = merge(common, {
     },
     optimization: {
         minimizer: [
-            new OptimizeCssWebpackPlugin(), // used alone, will only minify css & override default js minifying (terser)
+            // new OptimizeCssWebpackPlugin(), // used alone, will only minify css & override default js minifying (terser)
+            new CssMinimizerPlugin(),
             new TerserPlugin(), // completes previous to minify also js
             new HtmlWebpackPlugin({
                 template: './src/index.html', // use this template to generate dist/html and inside include script "main.[contenthash].js"

@@ -12,7 +12,8 @@ import {treatUnits} from '../utils/process-api-data';
 import {checkDoublonsBeforeAddingToArray} from '../utils/process-api-data';
 import {checkString} from '../utils/process-api-data';
 
-import {mapDataToTree, searchInTree, searchLetterInTrie} from '../utils/trie-search2';
+// import {mapDataToTree, searchInTree, searchLetterInTrie} from '../utils/trie-search2';
+import {mapDataToTree, findFirstLetter} from '../utils/trie-search3';
 
 
 /* ================================================== */
@@ -119,14 +120,14 @@ export const RecipeModule = (function() {
     // RETRIEVE current search term and call search method
     function processCurrentMainSearch(currentSearchTerm) {
 
-        searchLetterInTrie(currentSearchTerm, currentSearchTerm);
+        findFirstLetter(currentSearchTerm);
         
 
         // console.log(currentSearchTerm);
-        if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
+        /* if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list
             searchInTree(currentSearchTerm); // launch search for term in recipes list
-        }
+        } */
     }
 
     // STORE results in the module, until display method needs them
