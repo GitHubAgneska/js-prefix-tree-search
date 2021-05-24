@@ -132,6 +132,22 @@ class Trie {
         };
         // --------------------------------------------------
 
+        this.checkNextLetterInTrieMatches = function (searchterm, node) { // node = where the 1st matching letter was found
+
+            if (node == undefined) { node = this.root; }
+            searchterm = searchterm.substr(1, searchterm.length);
+            
+            while (searchterm.length > 0 ) {
+                if (!node.keys.has(searchterm[0])) {
+                    return 'aborting search for this node';
+                } else {
+                    node = node.keys.get(searchterm[0]); // place cursor on next matching node / letter
+                    searchterm = searchterm.substr(1); // next letter of searchterm to check
+                }
+                return ( node.keys.has(searchterm) );
+            }
+        };
+
         // CHECK WORD IS IN TRIE -> used to map data into tree ONLY
         this.contains = function(word) {
             let node = this.root;
@@ -149,60 +165,86 @@ class Trie {
         // --------------------------------------------------
 
         this.findAllOccurencesOfSearchTermInTrie = function (searchterm, node) {
+            let isRoot = true;
 
             if (node == undefined) { node = this.root; } // 1st time around: must start at root
             
             // 1 : FIND ALL OCCURENCES OF FIRST LETTER
             let firstLetter = searchterm[0]; console.log('LOOKING FOR LETTER: ', firstLetter.toUpperCase());
-            this.findFirstLetter(firstLetter, node);
+            let matchingNodesForLetter = this.findFirstLetter(firstLetter, node, isRoot);
+            console.log('MATCHING NODES HERE:::',matchingNodesForLetter );
+
+            // 2 : STARTING FROM EACH MATCHING NODE FOR 1ST LETTER : CHECK NEXT LETTER OF SEARCHTERM
+            // matchingNodesForLetter.forEach( (node) => { for (const [key, value] of node.keys) { console.log(key,':',value)}});
         };
 
 
 
-        this.findFirstLetter = function (firstLetter, node) {
-            let matchingNodesForLetter =[];
+        let matchingNodesForLetter =[];
+        let recipes = [];
+
+        this.findFirstLetter = function findFirstLetter(firstLetter, node, isRoot) {
             
             let currentNodeValues = node.keys; // node inner maps : letter : M ->  Object { keys: Map(3): E {} - O{} - .. }
-            console.log('ROOT=================================================================');
-            for (const [key, value] of currentNodeValues.entries()) { 
-                
-                let currentNode = currentNodeValues, nodeLetter = key, nodeMap = value.keys;
-                
-                if ( nodeLetter !== firstLetter ) {
-                    console.log(nodeLetter,' :THIS LETTER IS NOT AT ROOT, BUT LOOKING IN ITS KEYS ::::::::::::::', nodeMap);
+            
+            if (currentNodeValues.size > 0) { 
 
-
-                    if (nodeMap.size > 0) {
-                        for (const [key, value] of nodeMap.entries() ) {
-
-                            let currentNode = nodeMap, nodeLetter = key, nodeMapInner = value.keys;
-                            
-                            if ( nodeLetter !== firstLetter ) {
-                                console.log(nodeLetter,' :THIS LETTER IS NOT IN THE CURRNT MAP, BUT LOOKING INTO NEXT ONE ------>');
-                                continue; // go for the next key of map
-
-                            } else if ( nodeLetter === firstLetter ) {
-                                let nodeOfMatchingLetter = currentNode.get(nodeLetter);
-                                console.log('WE HAVE A MATCH !!!!!!! ::::::::::::::THIS KEY IS A MATCH,', nodeLetter, '===', firstLetter, 'PUSHING THIS NODE==>',nodeLetter,':',nodeOfMatchingLetter );
-                                matchingNodesForLetter.push(nodeOfMatchingLetter); // store node where matching 1ST letter
-                                //return; // go for the next key of map : continue seacrhing for other occurences
+                for (const [key, value] of currentNodeValues.entries()) { 
+                    if (isRoot) {console.log('ROOT=================================================================');}else{
+                        console.log('NOT ROOT=================================================================');
+                    }
+                    
+                    let currentNode = currentNodeValues, nodeLetter = key, nodeMap = value.keys;
+                    
+                    if ( nodeLetter !== firstLetter ) {
+                        console.log(nodeLetter,' :THIS LETTER IS NOT AT ROOT, BUT LOOKING IN ITS KEYS ::::::::::::::', nodeMap);
+    
+                        if (nodeMap.size > 0) {
+                            for (const [key, value] of nodeMap.entries() ) {
+    
+                                let currentNode = nodeMap, nodeLetter = key, nodeMapInner = value.keys;
+                                
+                                if ( nodeLetter !== firstLetter ) {
+                                    console.log(nodeLetter,' :THIS LETTER IS NOT IN THE CURRENT MAP, BUT LOOKING INSIDE ------>');
+    
+                                    node = currentNode;
+                                    isRoot = false;
+                                    findFirstLetter(firstLetter, node, isRoot);
+                                    
+                                    continue; // go for the next key of map
+    
+                                } else if ( nodeLetter === firstLetter ) {
+                                    let nodeOfMatchingLetter = currentNode.get(nodeLetter);
+                                    console.log('WE HAVE A MATCH !!!!!!! ::::::::::::::THIS KEY IS A MATCH,', nodeLetter, '===', firstLetter, 'PUSHING THIS NODE==>',nodeLetter,':',nodeOfMatchingLetter );
+                                    matchingNodesForLetter.push(nodeOfMatchingLetter); // store node where matching 1ST letter
+                                    
+                                    let res = this.goToLastNode(nodeOfMatchingLetter); // ===============> all words in trie CONTAINING this letter !
+                                    console.log('============== /\n/ RES==========', res, '/\n/==================  ');
+                                    recipes.concat(res);
+                                    continue; // go for the next key of map : continue seacrhing for other occurences
+                                }
                             }
-                        }
-                    } else { return; }
-
-
-                } else if ( nodeLetter === firstLetter ) {  // FIRST LETTER IS FOUND AT ROOT
-                    let nodeOfMatchingLetter = currentNode.get(nodeLetter);
-                    console.log('WE HAVE A MATCH IN ROOT !!!!!!! ******************* THIS KEY IS A MATCH,', nodeLetter, '===', firstLetter, 'PUSHING THIS NODE==>',nodeOfMatchingLetter );
-                    matchingNodesForLetter.push(nodeOfMatchingLetter); // store node where matching 1ST letter
-                    let res = this.goToLastNode(nodeOfMatchingLetter);
-                    console.log('======= /\n/ RES===', res, '/\n/===========  ');
-                    // return; // go for the next key of map : continue seacrhing for other occurences
+                        } else { return; }
+    
+    
+                    } else if ( nodeLetter === firstLetter ) {  // FIRST LETTER IS FOUND AT ROOT
+                        let nodeOfMatchingLetter = currentNode.get(nodeLetter);
+                        console.log('WE HAVE A MATCH IN ROOT !!!!!!! ******************* THIS KEY IS A MATCH,', nodeLetter, '===', firstLetter, 'PUSHING THIS NODE==>',nodeOfMatchingLetter );
+                        matchingNodesForLetter.push(nodeOfMatchingLetter); // store node where matching 1ST letter
+                        
+                        let res = this.goToLastNode(nodeOfMatchingLetter); // ===============> all words in trie CONTAINING this letter !
+                        console.log('******************* /\n/ RES *******************', res, '/\n/*******************  ');
+                        recipes.concat(res);    
+                        continue; // go for the next key of map : continue seacrhing for other occurences
+                    }
                 }
-            }
-            console.log('matchingNodesForLetter=========', matchingNodesForLetter);
-            return matchingNodesForLetter;
+                console.log('ALL WORDS STARTING WITH or CONTAINING THIS LETTER===',recipes );// ===============> all WORDS in trie CONTAINING this letter !
+                console.log('/\n/--------ALL MATCHING NODES FOR LETTER=====', matchingNodesForLetter); // ===============> all NODES in trie CONTAINING this letter !
+                return matchingNodesForLetter;
+
+            } else return; // node.keys === 0;
         };
+
 
         
 
