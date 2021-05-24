@@ -179,25 +179,57 @@ class Trie {
         };
 
 
+        
+        let nodesMatch = [];
+
+        this.goDeeper = function goDeeper(node, letter) {
+            console.log('************ PASSED NODE ===', node, '----------------------');
+            let currentMap = node; // node inner maps : letter : M ->  Object { keys: Map(3): E {} - O{} - .. }
+            
+            console.log('----------------------> GOING DEEPER : ');
+            for (const [key, value] of currentMap.entries()) { // KEY==  m  :  VALUE===Object { keys: Map(1), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), par
+                
+                console.log('CURRENT NODE KEY =====' , key,':', value, value.keys);
+                let currentKey = key; // letter
+                let currentValue = value; // map  // EX: KEY== m VALUE===Object { keys: Map(1), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), ...}
+                
+                if (currentKey !== letter) {
+                    if (  currentValue.keys.size > 0 ) {
+                        if ( currentValue.keys.has(letter)) {
+                            let matchNode = currentValue.keys.get(letter);
+                            console.log('WE HAVE A MATCH !! ############################ THIS KEY IS A MATCH,', matchNode.key, '===', letter,'PUSHING THIS NODE==>', matchNode);
+                            nodesMatch.push(matchNode);
+                            
+                        } else {
+                            console.log('---------------------->  GOING DEEPER AGAIN : ');
+                            goDeeper(currentValue.keys);
+                        }
+                    } else { console.log(' -------- NO MORE KEYS TO CHECK HERE DUDE -----------'); }
+                }
+                else if (currentKey === letter) {
+                    let matchNode = currentValue.keys.get(letter);
+                    console.log('WE HAVE A MATCH !! ############################ THIS KEY IS A MATCH,', matchNode.key, '===', letter,'PUSHING THIS NODE==>', matchNode);
+                    nodesMatch.push(matchNode);
+                }
+            }
+            return nodesMatch;
+        };
 
         let matchingNodesForLetter =[];
         let recipes = [];
 
         this.findFirstLetter = function findFirstLetter(firstLetter, node, isRoot) {
-            
             let currentNodeValues = node.keys; // node inner maps : letter : M ->  Object { keys: Map(3): E {} - O{} - .. }
             
             if (currentNodeValues.size > 0) { 
-
                 for (const [key, value] of currentNodeValues.entries()) { 
                     if (isRoot) {console.log('ROOT=================================================================');}else{
                         console.log('NOT ROOT=================================================================');
                     }
-                    
                     let currentNode = currentNodeValues, nodeLetter = key, nodeMap = value.keys;
                     
                     if ( nodeLetter !== firstLetter ) {
-                        console.log(nodeLetter,' :THIS LETTER IS NOT AT ROOT, BUT LOOKING IN ITS KEYS ::::::::::::::', nodeMap);
+                        console.log('MAP OF:', nodeLetter,' :THIS LETTER IS NOT AT ROOT, BUT LOOKING IN ITS KEYS ::::::::::::::', nodeMap);
     
                         if (nodeMap.size > 0) {
                             for (const [key, value] of nodeMap.entries() ) {
@@ -205,11 +237,14 @@ class Trie {
                                 let currentNode = nodeMap, nodeLetter = key, nodeMapInner = value.keys;
                                 
                                 if ( nodeLetter !== firstLetter ) {
-                                    console.log(nodeLetter,' :THIS LETTER IS NOT IN THE CURRENT MAP, BUT LOOKING INSIDE ------>');
-    
+                                    console.log('MAP OF:', nodeLetter,' : NOT A MATCH BUT LOOKING INSIDE ITS KEYS ------>');
+                                    
                                     node = currentNode;
                                     isRoot = false;
                                     findFirstLetter(firstLetter, node, isRoot);
+                                    this.goDeeper(node, firstLetter);
+
+                                    
                                     
                                     continue; // go for the next key of map
     
