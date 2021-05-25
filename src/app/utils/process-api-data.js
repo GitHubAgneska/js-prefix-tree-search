@@ -28,35 +28,28 @@ export function checkString(str) {
 // determine if a string is made of several words
 // => replace white space(s) with '-'
 // => replace ' apostrophe(s) with '-' as well
-export function checkStringIsSeveralWords(str){
-    const containsWhiteSpace = /\s/;
-    const containsApostropheRegex = /'/g;
+// ======> return 2 VERSIONS : a STRING with hyphens + an array of these words (both to insert in trie)
+const isSeveralWordsRegex = /[']|\s/g;
 
-    let inputIsSeveralWords = containsWhiteSpace.test(str);
-    let containsApostrophe = containsApostropheRegex.test(str);
-
-    if (containsApostrophe) {
-        let indexOfApostrophe = str.search(containsApostropheRegex);
-        str = str.replace(str.charAt(indexOfApostrophe), '-');
-    }
-
-    if (inputIsSeveralWords) {
-        // console.log('STRING IS SEVERAL WORDS!');
-        let indexOfWhiteSpace = str.search(containsWhiteSpace);
-        let result = str.replace(str.charAt(indexOfWhiteSpace), '-');
-        
-        return checkStringIsSeveralWords(result); // check again
-    } else { return str; }
+export function processIfSeveralWords(str){
+    if ( isSeveralWordsRegex.test(str) ) {
+        let arrFromStr = str.split(isSeveralWordsRegex);
+        let noApostropheNoSpace = str.replace(/[']|\s/g, '-');
+        return arrFromStr.concat(noApostropheNoSpace);
+    } else return;
 }
+
+
 
 // STRINGS --------------------------------------------------------------------------------------------------
 
 // replace accented e', 'a', 'i' char with regular char - ex: 'crême' -> 'creme'
 export function replaceAccents(str) {
-    const containsAnyAccentRegex = /[èéêëîâàä]/g;
+    const containsAnyAccentRegex = /[çèéêëîïâàä]/g;
     const eContainsAccentRegex = /[èéêë]/g;
-    const iContainsAccentRegex = /[î]/g;
+    const iContainsAccentRegex = /[îï]/g;
     const aContainsAccentRegex = /[âàä]/g;
+    const cContainsAccentRegex = /[ç]/g;
 
     let containsAnyAccent = containsAnyAccentRegex.test(str);
     
@@ -72,7 +65,10 @@ export function replaceAccents(str) {
         // 'a'
         } else if (aContainsAccentRegex.test(str.charAt(indexOfAccent))) {
             str =  str.replace(str.charAt(indexOfAccent), 'a');
-        }
+        // 'c'
+        }  else if (cContainsAccentRegex.test(str.charAt(indexOfAccent))) {
+            str =  str.replace(str.charAt(indexOfAccent), 'c');
+        } 
         return replaceAccents(str); // check again
 
     } else { return str; }

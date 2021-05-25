@@ -164,7 +164,7 @@ class Trie {
                 if (!node.keys.has(word[0])) {
                     return false;
                 } else {
-                    node = node.keys.get(word[0]); // place cursor on matching letter of root
+                    node = node.keys.get(word[0]); // place cursor on matching node
                     word = word.substr(1); // next letter of word to check
                 }
             }

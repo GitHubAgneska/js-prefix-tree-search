@@ -14,6 +14,7 @@ import {checkString} from '../utils/process-api-data';
 
 // import {mapDataToTree, searchInTree, searchLetterInTrie} from '../utils/trie-search2';
 import {mapDataToTree, findFirstLetter} from '../utils/trie-search3';
+// import {mapDataToTree, searchInTree} from '../utils/trie-search4';
 
 
 /* ================================================== */
@@ -120,13 +121,13 @@ export const RecipeModule = (function() {
     // RETRIEVE current search term and call search method
     function processCurrentMainSearch(currentSearchTerm) {
 
-        findFirstLetter(currentSearchTerm);
+        // searchInTree(currentSearchTerm);
+        findFirstLetter(currentSearchTerm); // launch search for term in recipes list
         
-
         // console.log(currentSearchTerm);
-        /* if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
+/*         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list
-            searchInTree(currentSearchTerm); // launch search for term in recipes list
+            findFirstLetter(currentSearchTerm); // launch search for term in recipes list
         } */
     }
 
