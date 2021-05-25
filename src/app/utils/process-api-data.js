@@ -29,14 +29,20 @@ export function checkString(str) {
 // => replace white space(s) with '-'
 // => replace ' apostrophe(s) with '-' as well
 // ======> return 2 VERSIONS : a STRING with hyphens + an array of these words (both to insert in trie)
-const isSeveralWordsRegex = /[']|\s/g;
 
 export function processIfSeveralWords(str){
-    if ( isSeveralWordsRegex.test(str) ) {
-        let arrFromStr = str.split(isSeveralWordsRegex);
-        let noApostropheNoSpace = str.replace(/[']|\s/g, '-');
+    const isSeveralWordsRegex = /[']|\s/g;
+    let wordsFromStr = [];
+    console.log('PROCESSING= ', str);
+
+    if ( isSeveralWordsRegex.test(str) ) { console.log('IS SEVERAL WORDS ');
+        let arrFromStr = str.split(isSeveralWordsRegex); console.log('SPLIT =>  ',arrFromStr);
+        let noApostropheNoSpace = str.replace(/[']|\s/g, '-'); console.log('NOSPACE =>  ',noApostropheNoSpace);
         return arrFromStr.concat(noApostropheNoSpace);
-    } else return;
+    
+    } else { console.log('IS ONE WORD! ');
+        wordsFromStr.push(str); return wordsFromStr;
+    }
 }
 
 

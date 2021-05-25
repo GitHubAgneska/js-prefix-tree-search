@@ -133,13 +133,10 @@ class Trie {
             if (node === undefined) { node = this.root; }
 
             while (searchTerm.length > 0) {
-
                 checkEachLetter();
-
             }
-            
+
             function checkEachLetter() {
-                
                 let letter = searchTerm[0];
     
                 if (node.keys.has(letter)) { 
@@ -154,8 +151,6 @@ class Trie {
                     });
                 }
             }
-
-
         };
     }
 }
@@ -173,21 +168,16 @@ export function mapDataToTree(recipes) {
         let wordToProcessToTree;  // --------------------------------- | TO DO : optimize following using these
         let isArray = wordToProcessToTree instanceof Array; // ------- |
         
-
         // process NAME and add to tree
         let recipeName = recipe.name;
-        recipeName = checkString(recipeName);
-        recipeName = processIfSeveralWords1(recipeName); // replaces all spaces & apostrophes wit hyphens => 'mousse-au-chocolat'
-        
-        let allWordsOfstr = processIfSeveralWords(recipeName); // => [ 'mousse', 'au', 'chocolat', 'mousse-au-chocolat' ]
+        recipeName = checkString(recipeName);  // remove punctuation/ accents/ make lowercase   
+        let recipeNameWords = processIfSeveralWords(recipeName); // => [ 'mousse', 'au', 'chocolat', 'mousse-au-chocolat' ]
 
-        recipesTrie.setCurrentWord(recipeName);     // stored to be used when adding
+        recipesTrie.setCurrentWord(recipeName);     // stored to be used when adding to trie last node
         recipesTrie.setCurrentRecipeObject(recipe);
-        // add name or whole hyphened name to trie
-        // add each word of name if several words length
-        allWordsOfstr.forEach( word => { 
-            if ( !recipesTrie.contains(word)) { recipesTrie.add(recipeName, node); } else { console.log('word already exist in tree! ');} // less likely to happen
-
+        // add each word of name if several words length + hyphened version
+        recipeNameWords.forEach( word => { 
+            if ( !recipesTrie.contains(word)) { recipesTrie.add(word, node); } else { console.log('word already exist in tree! ', word);} // less likely to happen
         });
         
 
@@ -195,31 +185,38 @@ export function mapDataToTree(recipes) {
         let recipeIngredients = recipe.ingredients;
         recipeIngredients.forEach(item => {
             let ingredientName = item.ingredient; // = ingredient.name
-            ingredientName = checkString(ingredientName);
-            ingredientName = checkStringIsSeveralWords(ingredientName);
+            ingredientName = checkString(ingredientName); console.log('ingredientName=', ingredientName);
+            
+            let ingredientNameWords = processIfSeveralWords(ingredientName); console.log('ingredientNameWords=', ingredientNameWords);
             recipesTrie.setCurrentWord(ingredientName);
             recipesTrie.setCurrentRecipeObject(recipe);
-            if ( !recipesTrie.contains(ingredientName)) { recipesTrie.add(ingredientName, node); } else { console.log('word already exist in tree!: ', ingredientName);} // most likely to happen
+            
+            ingredientNameWords.forEach(word => {
+                if ( !recipesTrie.contains(word)) { recipesTrie.add(word, node); } else { console.log('word already exist in tree!: ', word);} // most likely to happen
+            });
         });
 
         // process APPLIANCE and add to tree
         let recipeAppliance = recipe.appliance;
         recipeAppliance = checkString(recipeAppliance);
-        recipeAppliance = checkStringIsSeveralWords(recipeAppliance);
+        let recipeApplianceWords = processIfSeveralWords(recipeAppliance);
         recipesTrie.setCurrentWord(recipeAppliance);
         recipesTrie.setCurrentRecipeObject(recipe);
-        if ( !recipesTrie.contains(recipeAppliance)) { recipesTrie.add(recipeAppliance, node); } else { console.log('word already exist in tree!: ', recipeAppliance);} // less likely to happen
+        recipeApplianceWords.forEach(word => {
+            if ( !recipesTrie.contains(word)) { recipesTrie.add(word, node); } else { console.log('word already exist in tree!: ', word);} // less likely to happen
+        });
 
 
         // process each USTENSILS and add to tree
         let recipeUstensils = recipe.ustensils;
         recipeUstensils.forEach( ustensil => {
-            
             ustensil = checkString(ustensil);
-            ustensil = checkStringIsSeveralWords(ustensil);
+            let ustensilWords = processIfSeveralWords(ustensil);
             recipesTrie.setCurrentWord(ustensil);
             recipesTrie.setCurrentRecipeObject(recipe);
-            if ( !recipesTrie.contains(ustensil)) { recipesTrie.add(ustensil, node); } else { console.log('word already exist in tree!: ', ustensil);} // most likely to happen
+            ustensilWords.forEach( word => { 
+                if ( !recipesTrie.contains(word)) { recipesTrie.add(word, node); } else { console.log('word already exist in tree!: ', word);} // most likely to happen
+            });
         });
         console.log('recipesTrie root=', recipesTrie.root);
     });
