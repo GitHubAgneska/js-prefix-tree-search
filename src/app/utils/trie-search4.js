@@ -77,9 +77,10 @@ class Trie {
                 } else if (node.parentRecipeObjects.has(fullWord)){ // (check anyway)
                     console.log('parentRecipeObjects DOES have this key !');
                     let folderOfRecipesKey = node.parentRecipeObjects.get(fullWord);
+
                     let currentRecipe = this.getCurrentRecipeObject();
-                    folderOfRecipesKey.arrOfRecipes.push(currentRecipe); // only push current recipe Object to array
-                    console.log(node.parentRecipeObjects);
+                    folderOfRecipesKey.push(currentRecipe); // only push current recipe Object to array
+                    console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
                 }
                 return;
 
