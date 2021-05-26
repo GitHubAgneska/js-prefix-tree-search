@@ -122,9 +122,9 @@ export const RecipeModule = (function() {
     function processCurrentMainSearch(currentSearchTerm) {
 
         // searchInTree(currentSearchTerm);
-        if ( currentSearchTerm.length >= 3 ) {
-            searchInTree(currentSearchTerm); // launch search for term in recipes list
-        }
+        searchInTree(currentSearchTerm); // launch search for term in recipes list
+/*         if ( currentSearchTerm.length >= 3 ) {
+        } */
         // console.log(currentSearchTerm);
 /*         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list

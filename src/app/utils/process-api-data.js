@@ -41,7 +41,7 @@ export function processIfSeveralWords(str){
         let noApostropheNoSpace = str.replace(/[']|\s/g, '-');
         return arrFromStr.concat(noApostropheNoSpace);
     
-    } else { console.log('IS ONE WORD! ');
+    } else {
         wordsFromStr.push(str); return wordsFromStr;
     }
 }
