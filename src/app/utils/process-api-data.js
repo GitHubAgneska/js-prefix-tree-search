@@ -16,7 +16,6 @@ const eContainsAccentRegex = /[èéêë]/g;
 const iContainsAccentRegex = /[î]/g;
 const containsWhiteSpaceRegex = /\s/; */
 
-const isAnArticle = /(?:(a|au|le|la|de|du|) +)/g; 
 
 // standard string processing
 export function checkString(str) {
@@ -30,19 +29,23 @@ export function checkString(str) {
 // determine if a string is made of several words
 // => replace white space(s) with '-'
 // => replace ' apostrophe(s) with '-' as well
+// => removes all articles and the like :  du/de/la/a/au/ ... (avoid bloating trie)
 // ======> return 2 VERSIONS IN A SINGLE ARRAY : a STRING with hyphens + an array of these words (all to be inserted in trie)
 export function processIfSeveralWords(str){
     const isSeveralWordsRegex = /[']|\s/g;
+    const isA2charsWord = /(\b(\w{1,3})\b(\s|$))/g;
     let wordsFromStr = [];
     console.log('PROCESSING= ', str);
 
-    if ( isSeveralWordsRegex.test(str) ) {
-        let arrFromStr = str.split(isSeveralWordsRegex);
-        let noApostropheNoSpace = str.replace(/[']|\s/g, '-');
+    if ( isSeveralWordsRegex.test(str) ) {                              // 'mousse au chocolat'
+        
+        let remove2charsWords = str.replace(isA2charsWord,'');          // 'mousse chocolat'
+        let arrFromStr = remove2charsWords.split(isSeveralWordsRegex);  // ['mousse', 'chocolat']
+        let noApostropheNoSpace = str.replace(/[']|\s/g, '-');          //  'mousse-au-chocolat'
         return arrFromStr.concat(noApostropheNoSpace);
     
     } else {
-        wordsFromStr.push(str); return wordsFromStr;
+        wordsFromStr.push(str); return wordsFromStr;                   // ['mousse', 'chocolat','mousse-au-chocolat' ]
     }
 }
 

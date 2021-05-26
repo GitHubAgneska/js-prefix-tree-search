@@ -93,7 +93,7 @@ class Trie {
             
             } else { // key letter IS a node key already (node.keys.has(input[0])
             
-                // if letter is a 'bifurcation': root of a SUBTREE : should retrieve current recipe object before going further => for suggestions
+                // if letter is a 'bifurcation' ( = root of a SUBTREE ) : retrieve current recipe object before going further => for suggestions
                 if (node.keys.size > 1) {
                     this.setIsASubtree;
                     let currentRecipe = this.getCurrentRecipeObject();
@@ -101,7 +101,6 @@ class Trie {
                     
                     let currentInput = this.getCurrentWord();
                     console.log('PARTIAL WORD==', currentInput);
-                    // node.getWord(node); console.log('PARTIAL WORD==', currentPartialWord);
                     node.parentRecipeObjects.set(currentInput,arrOfRecipes);
                     arrOfRecipes.push(currentRecipe); // push recipe object word stems from
                 }
@@ -146,36 +145,36 @@ class Trie {
         this.searchElementInTrie = function(searchterm) {
             console.log('el we are looking for==,', searchterm);
             let node;
-            let currentNodeLetter;
             let lastMatchingNode;
-            let searchingFor = '';
+            let currentlyFound = '';
+            let suggestions = [];
 
             if (node === undefined) { node = this.root; }
 
-            while (searchterm.length > 1) {
+            let arrFromSearchterm = searchterm.split('');
+            for ( let i=0; i < arrFromSearchterm.length; i++ ) {
+
+                let currentLetterSearching = arrFromSearchterm[i];
                 
-                currentNodeLetter = searchterm[0];
-                if (!node.keys.has(currentNodeLetter)) {
-                    return 'Sorry no match for' + currentNodeLetter ;
-                } else {
-                    node = node.keys.get(currentNodeLetter); // place cursor on matching (map) letter of root
-                    console.log('MATCHING SO FAR:', currentNodeLetter);
-                    searchingFor += currentNodeLetter; // store letter
-                    if (searchingFor.length > 3) {
-                        this.goToLastNode(node, currentNodeLetter); // node = where the 3rd matching letter is : go find end(s) for this match
-                    }
-                    searchterm = searchterm.substr(1); // next letter of word to check
+                if (node.keys.has(currentLetterSearching)) {
+                    node = node.keys.get(currentLetterSearching);
+                    currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
+
+                    if (node.parentRecipeObjects.size > 0) { suggestions.push(node.parentRecipeObjects); } console.log('CURRENT SUGGESTIONS==', suggestions);
+                    if ( i === arrFromSearchterm-1 ) { lastMatchingNode = node; this.goToLastNode(lastMatchingNode); }
                 }
-            }            
+                else { return 'sorry no match for ' + searchterm;  }
+            }
         };
 
-       /*  this.goToLastNode = function goToLastNode(node, currentNodeLetter) {
+
+    /*  this.goToLastNode = function goToLastNode(node, currentNodeLetter) {
             console.log(' LAST MATCHING NODE===', currentNodeLetter, ':', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
             // NODE cases:
             // node.wordIsComplete => get recipesParentMap AND go to next node
             // node.isALeaf => get recipesParentMap
-            // node.isASubtree => for each key of keys : go to end (node === isALeaf  OR  === wordIsComplete )
+            // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
 
             
 
@@ -204,7 +203,7 @@ class Trie {
         }; */
 
         // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s) 
-        this.goToLastNode = function goToLastNode(node, currentNodeLetter) {
+        this.goToLastNode = function goToLastNode(node) {
             // node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             // console.log('NODE STEM LETTER ==', currentNodeLetter);
             let originalStemNode = node; // where we left off in search: 3rd letter of matching = potential start for different words
@@ -248,11 +247,6 @@ class Trie {
 }
 
 
-// helper preventing adding single chars (follwed or preceded with whitespace) - ex : 'a '
-const isASingleChar = function(str) { return (str.length === 2 && (/\s/).test(str)); };
-const isAnArticle = /(?:(au|le|la|de|du) +)/g;
-// const isAnArticle = /(?:(au|le|la|de|du|[(a|l|d)\s]) +)/g;  // --------------- TO REVIEW to match single char articles
-
 // MAPPING ALL INCOMING DATA TO TREE
 // --------------------------------------------------
 export function mapDataToTree(recipes) {
@@ -263,39 +257,27 @@ export function mapDataToTree(recipes) {
         
         let node;
         let wordToProcessToTree;  // --------------------------------- | TO DO : optimize following using these
-        let isArray = wordToProcessToTree instanceof Array; // ------- |
+        let isArray = wordToProcessToTree instanceof Array; // ------- | <<--
         
         // process NAME and add to tree
         let recipeName = recipe.name;
-        recipeName = checkString(recipeName);  // remove punctuation/ accents/ make lowercase   
-        let recipeNameWords = processIfSeveralWords(recipeName); // => [ 'mousse', 'au', 'chocolat', 'mousse-au-chocolat' ]
-
-        recipesTrie.setCurrentWord(recipeName);     // stored to be used when adding to trie last node
-        recipesTrie.setCurrentRecipeObject(recipe);
+        recipeName = checkString(recipeName);                       // remove punctuation/ accents/ make lowercase   
+        let recipeNameWords = processIfSeveralWords(recipeName);    // => [ 'mousse', 'au', 'chocolat', 'mousse-au-chocolat' ]
+        recipesTrie.setCurrentWord(recipeName);                     // stored to be used when adding to trie last node
+        recipesTrie.setCurrentRecipeObject(recipe);                 // same
         // add each word of name if several words length + hyphened version
-        recipeNameWords.forEach( word => { recipesTrie.add(word, node); console.log(word, ':ADDED!***************');
-            /* if ( !recipesTrie.contains(word) && ( !isAnArticle.test(word) )) { 
-                recipesTrie.add(word, node); console.log(word, ':ADDED!***************'); 
-            } else { // word is already in trie BUT we still need to add the recipe it comes from
-                console.log('word already exist in tree! ', word);
-                
-            } // less likely to happen */
-        });
+        recipeNameWords.forEach( word => { recipesTrie.add(word, node); console.log(word, ':ADDED!***************');});
         
 
         // process each INGREDIENT and add to tree
         let recipeIngredients = recipe.ingredients;
         recipeIngredients.forEach(item => {
             let ingredientName = item.ingredient; // = ingredient.name
-            ingredientName = checkString(ingredientName); console.log('ingredientName=', ingredientName);
-            
+            ingredientName = checkString(ingredientName);           
             let ingredientNameWords = processIfSeveralWords(ingredientName); console.log('ingredientNameWords=', ingredientNameWords);
             recipesTrie.setCurrentWord(ingredientName);
             recipesTrie.setCurrentRecipeObject(recipe);
-            
-            ingredientNameWords.forEach(word => {recipesTrie.add(word, node); console.log(word, ':ADDED!***************');
-                // if ( !recipesTrie.contains(word) && (!isAnArticle.test(word))) { recipesTrie.add(word, node); console.log(word, ':ADDED!***************'); } else { console.log('word already exist in tree!: ', word);} // most likely to happen
-            });
+            ingredientNameWords.forEach(word => {recipesTrie.add(word, node); console.log(word, ':ADDED!***************');});
         });
 
         // process APPLIANCE and add to tree
@@ -304,10 +286,7 @@ export function mapDataToTree(recipes) {
         let recipeApplianceWords = processIfSeveralWords(recipeAppliance);
         recipesTrie.setCurrentWord(recipeAppliance);
         recipesTrie.setCurrentRecipeObject(recipe);
-        recipeApplianceWords.forEach(word => { recipesTrie.add(word, node);console.log(word, ':ADDED!***************'); 
-            // if ( !recipesTrie.contains(word)&& (!isAnArticle.test(word))) { recipesTrie.add(word, node);console.log(word, ':ADDED!***************'); } else { console.log('word already exist in tree!: ', word);} // less likely to happen
-        });
-
+        recipeApplianceWords.forEach(word => { recipesTrie.add(word, node);console.log(word, ':ADDED!***************'); });
 
         // process each USTENSILS and add to tree
         let recipeUstensils = recipe.ustensils;
@@ -316,9 +295,7 @@ export function mapDataToTree(recipes) {
             let ustensilWords = processIfSeveralWords(ustensil);
             recipesTrie.setCurrentWord(ustensil);
             recipesTrie.setCurrentRecipeObject(recipe);
-            ustensilWords.forEach( word => {  recipesTrie.add(word, node); console.log(word, ':ADDED!***************');
-                // if ( !recipesTrie.contains(word)&& (!isAnArticle.test(word))) { recipesTrie.add(word, node); console.log(word, ':ADDED!***************');} else { console.log('word already exist in tree!: ', word);} // most likely to happen
-            });
+            ustensilWords.forEach( word => {  recipesTrie.add(word, node); console.log(word, ':ADDED!***************'); });
         });
         console.log('recipesTrie root=', recipesTrie.root);
     });
