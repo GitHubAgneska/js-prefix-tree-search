@@ -6,7 +6,7 @@
 // remove accents, parentheses, ponctuation
 // determine if made of several words
 
-const parenthesesRegExp = /[()]/g;
+/* const parenthesesRegExp = /[()]/g;
 const endsWithCommaOrPeriodRegex = /\.|,$/i;
 const containsPunctuationRegex = /[.,/#!$%^&*;:{}=\-_`~()]/g;
 const containsApostropheRegex = /'/g;
@@ -14,7 +14,9 @@ const containsWhiteSpace = /\s/;
 const containsAnyAccentRegex = /[èéêëîâàä]/g;
 const eContainsAccentRegex = /[èéêë]/g;
 const iContainsAccentRegex = /[î]/g;
-const containsWhiteSpaceRegex = /\s/;
+const containsWhiteSpaceRegex = /\s/; */
+
+const isAnArticle = /(?:(a|au|le|la|de|du|) +)/g; 
 
 // standard string processing
 export function checkString(str) {
@@ -28,16 +30,15 @@ export function checkString(str) {
 // determine if a string is made of several words
 // => replace white space(s) with '-'
 // => replace ' apostrophe(s) with '-' as well
-// ======> return 2 VERSIONS : a STRING with hyphens + an array of these words (both to insert in trie)
-
+// ======> return 2 VERSIONS IN A SINGLE ARRAY : a STRING with hyphens + an array of these words (all to be inserted in trie)
 export function processIfSeveralWords(str){
     const isSeveralWordsRegex = /[']|\s/g;
     let wordsFromStr = [];
     console.log('PROCESSING= ', str);
 
-    if ( isSeveralWordsRegex.test(str) ) { console.log('IS SEVERAL WORDS ');
-        let arrFromStr = str.split(isSeveralWordsRegex); console.log('SPLIT =>  ',arrFromStr);
-        let noApostropheNoSpace = str.replace(/[']|\s/g, '-'); console.log('NOSPACE =>  ',noApostropheNoSpace);
+    if ( isSeveralWordsRegex.test(str) ) {
+        let arrFromStr = str.split(isSeveralWordsRegex);
+        let noApostropheNoSpace = str.replace(/[']|\s/g, '-');
         return arrFromStr.concat(noApostropheNoSpace);
     
     } else { console.log('IS ONE WORD! ');
@@ -45,11 +46,9 @@ export function processIfSeveralWords(str){
     }
 }
 
-
-
 // STRINGS --------------------------------------------------------------------------------------------------
 
-// replace accented e', 'a', 'i' char with regular char - ex: 'crême' -> 'creme'
+// replace accented e', 'a', 'i', ç , char with regular char - ex: 'crême' -> 'creme'
 export function replaceAccents(str) {
     const containsAnyAccentRegex = /[çèéêëîïâàä]/g;
     const eContainsAccentRegex = /[èéêë]/g;
