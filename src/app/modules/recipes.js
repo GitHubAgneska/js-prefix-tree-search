@@ -14,7 +14,7 @@ import {checkString} from '../utils/process-api-data';
 
 // import {mapDataToTree, searchInTree, searchLetterInTrie} from '../utils/trie-search2';
 // import {mapDataToTree, findFirstLetter} from '../utils/trie-search3';
-import {mapDataToTree, searchInTree} from '../utils/trie-search4';
+import {mapDataToTree, searchInTree, getTrieResults} from '../utils/trie-search4';
 
 
 /* ================================================== */
@@ -125,6 +125,9 @@ export const RecipeModule = (function() {
         if ( currentSearchTerm.length >= 3 ) {
                         searchInTree(currentSearchTerm); // launch search for term in recipes list
         }
+        let res = getTrieResults();
+        console.log('RESULTS FROM TRIE==', res);
+
         // console.log(currentSearchTerm);
 /*         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
             // search(recipes, currentSearchTerm); // launch search for term in recipes list

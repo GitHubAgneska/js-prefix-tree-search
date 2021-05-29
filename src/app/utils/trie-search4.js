@@ -147,6 +147,7 @@ class Trie {
             let node;
             let lastMatchingNode;
             let currentlyFound = '';
+            let completeWords = [];
             let suggestions = [];
 
             if (node === undefined) { node = this.root; }
@@ -160,91 +161,59 @@ class Trie {
                     node = node.keys.get(currentLetterSearching);
                     currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    if (node.parentRecipeObjects.size > 0) { suggestions.push(node.parentRecipeObjects); } console.log('CURRENT SUGGESTIONS==', suggestions);
-                    if ( i === arrFromSearchterm-1 ) { lastMatchingNode = node; this.goToLastNode(lastMatchingNode); }
+                    if ( i >= 3 ) { 
+                        if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
+                        console.log('CURRENT completeWords==', completeWords);
+                        this.setTrieResults(completeWords);
+
+                        lastMatchingNode = node; 
+                        suggestions = this.goToLastNode(lastMatchingNode);
+                        console.log('SUGGESTIONS WOULD BE ===', suggestions);
+
+                    }
+                    // lastMatchingNode = node; this.goToLastNode(lastMatchingNode);
+                    // if ( i === arrFromSearchterm-1 ) { lastMatchingNode = node; this.goToLastNode(lastMatchingNode); }
                 }
                 else { return 'sorry no match for ' + searchterm;  }
             }
         };
 
+        this.setTrieResults = function(results) { this.results = results; };
+        this.resetTrieResults = function (results) { return this.results = []; };
+        this.getTrieResults = function () { return this.results; };
 
-    /*  this.goToLastNode = function goToLastNode(node, currentNodeLetter) {
-            console.log(' LAST MATCHING NODE===', currentNodeLetter, ':', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
+        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
+        this.resetTrieSuggestions = function (suggestions) { return this.suggestions = []; };
+        this.getTrieSuggestions = function () { return this.suggestions; };
+
+
+        let nextNode, nextLetter;
+        this.goToLastNode = function goToLastNode(node) {
+
+            console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
             // NODE cases:
             // node.wordIsComplete => get recipesParentMap AND go to next node
             // node.isALeaf => get recipesParentMap
             // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
+    
+            if (node.keys.size === 1  ||  node.keys.size > 1 ) {
 
-            
-
-            let currentNodeKeys = node.keys;
-            
-            if (currentNodeKeys.size > 1) { 
-                this.setIsASubtree = true;
-                console.log('THIS NODE IS A SUBTREE:', currentNodeKeys);
-                for (const mapNode of currentNodeKeys) {
-                    console.log('going there now: ', mapNode);
-                    goToLastNode(mapNode);
-                }
-            } else { console.log('THIS NODE IS NOT A SUBTREE:', currentNodeKeys);
-                if ( node.end) {
-                    console.log('END of branch');
-                    recipesForWord.push(node.parentRecipeObjects); // =  map containing 0 to n objects
-                    console.log('recipesForWord==', recipesForWord);
-                    return recipesForWord; // = array of maps containing 0 to n objects
-                } else { 
-                    node = node.keys[0];
-                    goToLastNode(node);
+                for (const [key, value] of node.keys) {
+                    
+                    nextNode = value; nextLetter = key;
+                    console.log('NEXT LETTER: ', nextLetter, 'NEXT NODE: ',nextNode );
+                    goToLastNode(nextNode);
                 }
             }
-            console.log('RECIPES FOR THIS WORD==',recipesForWord );
-            return recipesForWord;
-        }; */
-
-        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s) 
-        this.goToLastNode = function goToLastNode(node) {
-            // node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
-            // console.log('NODE STEM LETTER ==', currentNodeLetter);
-            let originalStemNode = node; // where we left off in search: 3rd letter of matching = potential start for different words
-            let currentNode = node; // where we left off in search: 3rd letter of matching
-            let currentNodeValues = currentNode.keys; // node inner maps : letter : M ->  Object { keys: Map(3): E {} - O{} - .. }
-
-            // NODE cases:
-            // node.wordIsComplete => get recipesParentMap AND go to next node
-            // node.isALeaf => get recipesParentMap
-            // node.isASubtree => for each key of keys : go to end (node === isALeaf  OR  === wordIsComplete )
-
-            // go further for this node letter : M  -> next : E -> next: O
-            let goFurther = function goFurther(currentNode) { 
-                for (const [key, value] of currentNodeValues.entries()) {
-                    goDeeper(currentNodeValues);
-                }
-            };
-            // go deeper for this node letter : E - enter 'E' keys (if any) / then enter 'O' keys ( -> 'N' )
-            let goDeeper = function goDeeper(currentNodeValues) {
-                for (const [key, value] of currentNodeValues.entries()) { // for each inner map (letter) of node : L-I-M  -e   / - o
-                    
-                    let currentKey = key; // letter
-                    let currentValue = value; // map  // EX: KEY== m VALUE===Object { keys: Map(1), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(0), ...}
-                    
-                    if (value.end) { // end of branch for this match : L-I-M -- -> E
-                        console.log('END of branch');
-                        recipesForWord.push(value.parentRecipeObjects); // =  map containing 0 to n objects
-                        // console.log('recipesForWord==', recipesForWord);
-                        return recipesForWord; // = array of maps containing 0 to n objects
-                        
-                    } else { // else go deeper until finding end
-                        goDeeper(currentValue.keys);
-                    }
-                }
-            };
-            goFurther(originalStemNode);
+                
+            if (node.parentRecipeObjects) { recipesForWord.push(node.parentRecipeObjects); }
             console.log('RECIPES FOR THIS WORD==',recipesForWord );
             return recipesForWord;
         };
     }
 }
+
 
 
 // MAPPING ALL INCOMING DATA TO TREE
@@ -312,5 +281,10 @@ function getCurrentTrie() { return currentTrie; }
 export function searchInTree(searchTerm) {
     let recipesTrie = getCurrentTrie();
     recipesTrie.searchElementInTrie(searchTerm);
+}
+
+export function getTrieResults() {
+    let recipesTrie = getCurrentTrie();
+    return recipesTrie.getTrieResults();
 }
 
