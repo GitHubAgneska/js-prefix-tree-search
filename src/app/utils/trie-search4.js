@@ -10,16 +10,14 @@ class Node {
         this.parent = null;// we keep a reference to parent
         
         this.wordIsComplete = false;  // end of A word - but might be more chars after it
-        this.setEndOfAword = function () { this.endOfAword = true; };
-        this.isEndOfAword = function () { return this.endOfAword; };
+        this.setEndOfAword = function () { this.wordIsComplete = true; };
+        this.isEndOfAword = function () { return this.wordIsComplete; };
         
         this.isASubtree = false; // => this.keys.size > 1;
-        this.setIsASubtree = function() { this.isASubtree = true; };
+        this.setIsASubtree = function() { this.isASubtree = true;  this.isALeaf = false;};
         this.IsASubtree = function() { return this.isASubtree; };
 
-        this.isALeaf = false; // => last node of a branch : node.keys.size === 0
-        this.setIsALeaf = function() { this.isALeaf = true; };
-        this.IsALeaf = function() { return this.isALeaf; };
+        this.isALeaf = function() { this.keys.size === 0; };  // => last node of a branch : node.keys.size === 0
         
         this.visited = false; // keep track of path when inspecting trie
         this.parentRecipeObjects = new Map(); // if 'isEnd' ( end of a word) : store :  word:KEY + array containing objects:VALUE
@@ -41,6 +39,7 @@ class Trie {
 
         // store objectsRecipe attached to nodes when retrieved
         let recipesForWord = [];
+        let suggestions = [];
 
         // --------------------------------------------------
         // store current incoming word
@@ -95,12 +94,12 @@ class Trie {
             
                 // if letter is a 'bifurcation' ( = root of a SUBTREE ) : retrieve current recipe object before going further => for suggestions
                 if (node.keys.size > 1) {
-                    this.setIsASubtree;
+                    node.setIsASubtree();
                     let currentRecipe = this.getCurrentRecipeObject();
                     let arrOfRecipes = []; // set up array value to store recipes this word is part of
                     
                     let currentInput = this.getCurrentWord();
-                    console.log('PARTIAL WORD==', currentInput);
+                    console.log('PARTIAL WORD ? ==', currentInput);
                     node.parentRecipeObjects.set(currentInput,arrOfRecipes);
                     arrOfRecipes.push(currentRecipe); // push recipe object word stems from
                 }
@@ -124,7 +123,7 @@ class Trie {
         };
 
         // -------------------------------------------------
-        // HELPER function : show all words entered in tree
+        // HELPER function : SHOW all words entered in tree
         this.print = function() {
             let allwordsOfTree = new Array();
             let search = function(node, str) {
@@ -141,9 +140,9 @@ class Trie {
         };
                 
         // --------------------------------------------------
-        // Search element in trie : term, letter, value, ..
+        // SEARCH term in trie
         this.searchElementInTrie = function(searchterm) {
-            console.log('el we are looking for==,', searchterm);
+            console.log('we are looking for==,', searchterm);
             let node;
             let lastMatchingNode;
             let currentlyFound = '';
@@ -167,26 +166,17 @@ class Trie {
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node; 
-                        suggestions = this.goToLastNode(lastMatchingNode);
-                        console.log('SUGGESTIONS WOULD BE ===', suggestions);
-
+                        suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
+                        this.setTrieSuggestions(suggestions);
+                        console.log('SUGGESTIONS WOULD BE ===', suggestions); 
                     }
-                    // lastMatchingNode = node; this.goToLastNode(lastMatchingNode);
-                    // if ( i === arrFromSearchterm-1 ) { lastMatchingNode = node; this.goToLastNode(lastMatchingNode); }
                 }
                 else { return 'sorry no match for ' + searchterm;  }
             }
         };
 
-        this.setTrieResults = function(results) { this.results = results; };
-        this.resetTrieResults = function (results) { return this.results = []; };
-        this.getTrieResults = function () { return this.results; };
-
-        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
-        this.resetTrieSuggestions = function (suggestions) { return this.suggestions = []; };
-        this.getTrieSuggestions = function () { return this.suggestions; };
-
-
+        // --------------------------------------------------
+        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s) 
         let nextNode, nextLetter;
         this.goToLastNode = function goToLastNode(node) {
 
@@ -196,8 +186,9 @@ class Trie {
             // node.wordIsComplete => get recipesParentMap AND go to next node
             // node.isALeaf => get recipesParentMap
             // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
-    
-            if (node.keys.size === 1  ||  node.keys.size > 1 ) {
+            if (node.keys.size >= 1 ) {
+
+                console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
 
                 for (const [key, value] of node.keys) {
                     
@@ -207,10 +198,20 @@ class Trie {
                 }
             }
                 
-            if (node.parentRecipeObjects) { recipesForWord.push(node.parentRecipeObjects); }
-            console.log('RECIPES FOR THIS WORD==',recipesForWord );
-            return recipesForWord;
+            if (node.parentRecipeObjects.size > 0) { suggestions.push(node.parentRecipeObjects); }
+            console.log('suggestions FOR THIS WORD==',suggestions );
+            return suggestions;
         };
+
+        // --------------------------------------------------
+        // STORE results of search
+        this.setTrieResults = function(results) { this.results = results; };
+        this.resetTrieResults = function (results) { return this.results = []; };
+        this.getTrieResults = function () { return this.results; };
+
+        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
+        this.resetTrieSuggestions = function (suggestions) { return this.suggestions = []; };
+        this.getTrieSuggestions = function () { return this.suggestions; };
     }
 }
 
@@ -286,5 +287,16 @@ export function searchInTree(searchTerm) {
 export function getTrieResults() {
     let recipesTrie = getCurrentTrie();
     return recipesTrie.getTrieResults();
+}
+export function getTrieSuggestions() {
+    let recipesTrie = getCurrentTrie();
+    return recipesTrie.getTrieSuggestions();
+}
+
+
+// Organize results before module uses them (raw = array of nested maps )
+function sortOutResults() {
+    let recipesTrie = getCurrentTrie();
+    let rawResults = recipesTrie.getTrieResults();
 }
 

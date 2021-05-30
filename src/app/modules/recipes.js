@@ -14,7 +14,7 @@ import {checkString} from '../utils/process-api-data';
 
 // import {mapDataToTree, searchInTree, searchLetterInTrie} from '../utils/trie-search2';
 // import {mapDataToTree, findFirstLetter} from '../utils/trie-search3';
-import {mapDataToTree, searchInTree, getTrieResults} from '../utils/trie-search4';
+import {mapDataToTree, searchInTree, getTrieResults, getTrieSuggestions} from '../utils/trie-search4';
 
 
 /* ================================================== */
@@ -123,16 +123,16 @@ export const RecipeModule = (function() {
 
         // searchInTree(currentSearchTerm);
         if ( currentSearchTerm.length >= 3 ) {
-                        searchInTree(currentSearchTerm); // launch search for term in recipes list
+            searchInTree(currentSearchTerm); // launch search for term in recipes list
         }
-        let res = getTrieResults();
-        console.log('RESULTS FROM TRIE==', res);
+        let results = getTrieResults(); console.log('RESULTS FROM TRIE==', results);
+        let suggestions = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestions);
+        processTrieResponse(results,suggestions);
+    }
 
-        // console.log(currentSearchTerm);
-/*         if ( currentSearchTerm.length >= 3 ) { // launch search from 3 chars to make suggestions
-            // search(recipes, currentSearchTerm); // launch search for term in recipes list
-            findFirstLetter(currentSearchTerm); // launch search for term in recipes list
-        } */
+    function processTrieResponse(results,suggestions) {  // ( raw = 2 arrays of nested maps )
+
+
     }
 
     // STORE results in the module, until display method needs them
