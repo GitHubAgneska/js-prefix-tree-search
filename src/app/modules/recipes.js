@@ -127,13 +127,13 @@ export const RecipeModule = (function() {
         }
         let results = getTrieResults(); console.log('RESULTS FROM TRIE==', results);
         let suggestions = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestions);
+        processTrieSuggestions(suggestions);
         processTrieResults(results);
         displaySearchResults(results);
-
     }
 
-    function processTrieResults(results) {  // ( raw = array of nested maps )
-        
+
+    function processTrieResults(results) {  // ( raw = array of nested maps ( where keys = matching words ) )
         let finalArrOfRecipes = [];
         results.forEach(map => {
             for ( let value of map.values() ){
@@ -151,6 +151,36 @@ export const RecipeModule = (function() {
         return finalArrOfRecipes;
     }
 
+    function processTrieSuggestions(suggestions) { // ( raw = array of nested maps ( where keys = matching words + different endings )  )
+        let arrayOfSuggestedRecipes = [];
+        suggestions.forEach(map => {
+
+            for ( let [key, value] of map.entries() ){
+
+                let suggestedWord = key; console.log('SUGGESTED WORD===', suggestedWord);
+                let suggestedRecipes = value; // array of objects
+                
+                addSuggestionInList(suggestedWord, suggestedRecipes);
+
+                suggestedRecipes.forEach( recipeObj => {
+                    if ( !arrayOfSuggestedRecipes.includes(recipeObj) ) {
+                        arrayOfSuggestedRecipes.push(recipeObj);
+                    }
+                });
+            }
+        });
+    }
+
+    function selectSuggestedWord(event, suggestedRecipes) {
+        let word = event.target.innerText; // text inside <p> element where event occurs
+        let inputField = document.querySelector('#main-search-input');
+        inputField.value = word; // make selected suggested word the current search word of input field
+        // reset / close suggestion list
+        resetSuggestions();
+        // order display of list results for this word
+        displaySearchResults(suggestedRecipes);
+    }
+
 
     // STORE results in the module, until display method needs them
     let setResults = function(results) { storedResults = results; };
@@ -163,7 +193,7 @@ export const RecipeModule = (function() {
 
     // HANDLE SUGGESTIONS ---------------
     // for each new found suggestion, generate list item in suggestions wrapper
-    function addSuggestionInList(suggestion){
+    function addSuggestionInList(suggestion, suggestedRecipes ){
         let newSuggestion = document.createElement('p');
         let newSuggestedWord = document.createTextNode(suggestion);
         newSuggestion.appendChild(newSuggestedWord);
@@ -172,27 +202,11 @@ export const RecipeModule = (function() {
         suggestionsWrapper.appendChild(newSuggestion);
 
         // handle selection of suggested word (both click and keydown)
-        newSuggestion.addEventListener('click', function(event){ handleSelectSuggestedWord(event); }, false);
-        newSuggestion.addEventListener('keydown', function(event){ handleSelectSuggestedWord(event); }, false);
+        newSuggestion.addEventListener('click', function(event){ selectSuggestedWord(event,suggestedRecipes ); }, false);
+        newSuggestion.addEventListener('keydown', function(event){ selectSuggestedWord(event, suggestedRecipes); }, false);
     }
 
-    // when a list of suggestions is displayed, user can select a word => 
-    // word is then 'sent'/displayed in input field
-    // this automatically updates the list of recipes displayed on the page
-    function handleSelectSuggestedWord(event) {
-        let word = event.target.innerText; // text inside <p> element where event occurs
-        // console.log('word is==', word);
-        // let currentSearchInput = document.querySelector('#main-search-input').value; // what is the current search in input field
-        // console.log('currentSearchInput===', currentSearchInput);
-        let inputField = document.querySelector('#main-search-input');
-        inputField.value = word; // make selected suggested word the current search word of input field
-        search(recipes, inputField.value); // launch search again for this one current term
 
-        // reset / close suggestion list
-        resetSuggestions();
-        // order display of list results for this word
-        displaySearchResults();
-    }
 
     // suggestions list DOM should be reset at each new keystroke
     function resetSuggestions(parent){
