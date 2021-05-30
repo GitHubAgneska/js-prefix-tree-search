@@ -97,7 +97,7 @@ export const RecipeModule = (function() {
             recipesList.push(newRecipe);
         });
 
-        // ADD ALL DATA TO TREE  ---- // TO REVIEW : should not contain a foreach too 
+        // ADD ALL DATA TO TREE 
         mapDataToTree(recipes);
 
         setResults(recipesList);
@@ -127,13 +127,30 @@ export const RecipeModule = (function() {
         }
         let results = getTrieResults(); console.log('RESULTS FROM TRIE==', results);
         let suggestions = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestions);
-        processTrieResponse(results,suggestions);
-    }
-
-    function processTrieResponse(results,suggestions) {  // ( raw = 2 arrays of nested maps )
-
+        processTrieResults(results);
+        displaySearchResults(results);
 
     }
+
+    function processTrieResults(results) {  // ( raw = array of nested maps )
+        
+        let finalArrOfRecipes = [];
+        results.forEach(map => {
+            for ( let value of map.values() ){
+
+                let recipesArray = value; console.log('MAP VALUE===', recipesArray); // array of objects
+                recipesArray.forEach( recipeObj => {
+                    if ( !finalArrOfRecipes.includes(recipeObj) ) {
+                        finalArrOfRecipes.push(recipeObj);
+                    }
+                });
+            }
+        });
+        setResults(finalArrOfRecipes);
+        console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
+        return finalArrOfRecipes;
+    }
+
 
     // STORE results in the module, until display method needs them
     let setResults = function(results) { storedResults = results; };
