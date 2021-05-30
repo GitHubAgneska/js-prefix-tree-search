@@ -198,7 +198,12 @@ class Trie {
                 }
             }
                 
-            if (node.parentRecipeObjects.size > 0) { suggestions.push(node.parentRecipeObjects); }
+            if (node.parentRecipeObjects.size > 0) { 
+                if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
+                    suggestions.push(node.parentRecipeObjects); 
+
+                }
+            }
             console.log('suggestions FOR THIS WORD==',suggestions );
             return suggestions;
         };
@@ -291,12 +296,5 @@ export function getTrieResults() {
 export function getTrieSuggestions() {
     let recipesTrie = getCurrentTrie();
     return recipesTrie.getTrieSuggestions();
-}
-
-
-// Organize results before module uses them (raw = array of nested maps )
-function sortOutResults() {
-    let recipesTrie = getCurrentTrie();
-    let rawResults = recipesTrie.getTrieResults();
 }
 
