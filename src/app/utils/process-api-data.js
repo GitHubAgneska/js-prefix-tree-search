@@ -41,8 +41,9 @@ export function processIfSeveralWords(str){
         
         let remove2charsWords = str.replace(isA2charsWord,'');          // 'mousse chocolat'
         let arrFromStr = remove2charsWords.split(isSeveralWordsRegex);  // ['mousse', 'chocolat']
-        let noApostropheNoSpace = str.replace(/[']|\s/g, '-');          //  'mousse-au-chocolat'
-        return arrFromStr.concat(noApostropheNoSpace);
+        // let noApostropheNoSpace = str.replace(/[']|\s/g, '-');          //  'mousse-au-chocolat'
+        // return arrFromStr.concat(noApostropheNoSpace);
+        return arrFromStr;
     
     } else {
         wordsFromStr.push(str); return wordsFromStr;                   // ['mousse', 'chocolat','mousse-au-chocolat' ]

@@ -160,7 +160,8 @@ class Trie {
                     node = node.keys.get(currentLetterSearching);
                     currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    if ( i >= 3 ) { 
+                    if ( i >= 3 ) {
+
                         if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         console.log('CURRENT completeWords==', completeWords);
                         this.setTrieResults(completeWords);
@@ -201,7 +202,6 @@ class Trie {
             if (node.parentRecipeObjects.size > 0) { 
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
-
                 }
             }
             console.log('suggestions FOR THIS WORD==',suggestions );
@@ -211,11 +211,11 @@ class Trie {
         // --------------------------------------------------
         // STORE results of search
         this.setTrieResults = function(results) { this.results = results; };
-        this.resetTrieResults = function (results) { return this.results = []; };
+        this.resetTrieResults = function () { return this.results = []; };
         this.getTrieResults = function () { return this.results; };
 
         this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
-        this.resetTrieSuggestions = function (suggestions) { return this.suggestions = []; };
+        this.resetTrieSuggestions = function () { return this.suggestions = []; };
         this.getTrieSuggestions = function () { return this.suggestions; };
     }
 }
@@ -286,6 +286,7 @@ function getCurrentTrie() { return currentTrie; }
 
 export function searchInTree(searchTerm) {
     let recipesTrie = getCurrentTrie();
+    recipesTrie.resetTrieResults(); recipesTrie.resetTrieSuggestions();
     recipesTrie.searchElementInTrie(searchTerm);
 }
 

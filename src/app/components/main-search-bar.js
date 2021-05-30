@@ -48,9 +48,14 @@ export class SearchBar extends HTMLElement {
             currentSearchTerm = event.target.value;
             // process input as it enters field = init match search
             RecipeModule.processCurrentMainSearch(currentSearchTerm);
-            
+
             inputFieldTouched = true;
             handleManualSearchReset();
+        }, false);
+
+        // CASE WHERE USER USES BACKSPACE KEY to delete chars
+        mainInputSearch.addEventListener('keydown', function(event){
+            if ( event.key === 'Backspace') { console.log('USER IS SUPPRESSING KEYS');return; }
         }, false);
 
         

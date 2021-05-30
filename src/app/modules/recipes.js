@@ -115,9 +115,12 @@ export const RecipeModule = (function() {
     // RETRIEVE current search term and call search method
     function processCurrentMainSearch(currentSearchTerm) {
 
-        console.log('RESETTING SUGGESTIONS!!'); let currentSugg = getTrieSuggestions(); resetSearchArray(currentSugg); 
+        console.log('RESETTING SUGGESTIONS!!'); let currentSugg = getSuggestions(); resetSearchArray(currentSugg); 
+        console.log('RESETTING RESULTS!!'); let currentRes = getResults(); resetSearchArray(currentRes);
+
 
         if ( currentSearchTerm.length >= 3 ) {
+
             searchInTree(currentSearchTerm); // launch search in trie
             
             let resultsFromTrie = getTrieResults(); console.log('RESULTS FROM TRIE==', resultsFromTrie);
@@ -134,6 +137,7 @@ export const RecipeModule = (function() {
                 displaySearchResults(resultsFromTrie);
             }
         }
+        
     }
 
     // as received from trie : = array of nested maps ( where keys = matching words )
@@ -159,27 +163,40 @@ export const RecipeModule = (function() {
     function processTrieSuggestions(suggestions) {
         let arrayOfSuggestedRecipes = [];
         let suggestedWordsList = [];
-        
-        suggestions.forEach(map => {
+        let arrOfObj = [];
 
+        suggestions.forEach(map => { arrOfObj.push(Object.fromEntries(map)); }); console.log('ARRAY OF OBJECTS===',arrOfObj );
+        let filtered = [ ...new Map(arrOfObj.map( obj => [obj.key, obj.value]))]; console.log('FILTERED ===',filtered );
+
+
+        suggestions.forEach( map => {
+            
             for ( let [key, value] of map.entries() ){
 
                 let suggestedWord = key; console.log('SUGGESTED WORD===', suggestedWord);
                 let suggestedRecipes = value; // array of objects
-                addSuggestionInList(suggestedWord, suggestedRecipes);
+
+                if (suggestions.includes(map.has(suggestedWord)) ) { console.log('DOUBLON==', suggestedWord);}
                 
+                addSuggestionInList(suggestedWord, suggestedRecipes);
+
                 suggestedRecipes.forEach( recipeObj => {
                     if ( !arrayOfSuggestedRecipes.includes(recipeObj) ) {
                         arrayOfSuggestedRecipes.push(recipeObj);
                     }
                 });
             }
-        });
+            map.clear();
+        }
+        );
+        // resetSuggestions(); //UI
+        setSuggestions([]); // reset suggestions data
     }
 
     // HANDLE SUGGESTIONS ---------------
     // for each new found suggestion, generate list item in suggestions wrapper
     function addSuggestionInList(suggestion, suggestedRecipes ){
+
         let newSuggestion = document.createElement('p');
         let newSuggestedWord = document.createTextNode(suggestion);
         newSuggestion.appendChild(newSuggestedWord);
