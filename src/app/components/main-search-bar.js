@@ -53,9 +53,12 @@ export class SearchBar extends HTMLElement {
             handleManualSearchReset();
         }, false);
 
-        // CASE WHERE USER USES BACKSPACE KEY to delete chars
+        // CASE WHERE USER USES BACKSPACE KEY to delete chars : prevent search to start again
         mainInputSearch.addEventListener('keydown', function(event){
-            if ( event.key === 'Backspace') { console.log('USER IS SUPPRESSING KEYS');return; }
+            if ( event.key === 'Backspace') {
+                console.log('USER IS SUPPRESSING KEYS');return; 
+        }
+            if ( event.key === 'Enter' ) { RecipeModule.confirmCurrentChars(); } // allow partial searchterm confirmation
         }, false);
 
         
@@ -66,8 +69,11 @@ export class SearchBar extends HTMLElement {
                 console.log('NEW SEARCH PENDING');
                 
                 RecipeModule.resetSearchArray(); // data array
-                RecipeModule.resetSuggestions(); // dom
+                RecipeModule.resetSuggestedWords(); // data array
+                RecipeModule.resetSuggestionsBlock(); // dom
                 RecipeModule.removeNoResults(); // remove no results message if needed
+
+                RecipeModule.resetDefaultView();
             }
         }
         
@@ -78,7 +84,7 @@ export class SearchBar extends HTMLElement {
             currentSearchTerm = mainInputSearch.value;
             // console.log('currentSearchTerm==', currentSearchTerm);
             if (currentSearchTerm && currentSearchTerm !== null) {
-                RecipeModule.resetSuggestions();
+                RecipeModule.resetSuggestionsBlock();
                 RecipeModule.displaySearchResults();
                 // display 1st suggestion by default
                 let firstSuggestion = RecipeModule.retrieveFirstSuggestion();

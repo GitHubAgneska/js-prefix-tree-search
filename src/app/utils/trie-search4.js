@@ -1,6 +1,8 @@
 
 import {checkString, processIfSeveralWords} from '../utils/process-api-data';
 
+// SET-UP LOCAL STORAGE FOR - all recipes array
+const myStorage = window.localStorage;
 
 let id = 0;
 class Node {
@@ -160,8 +162,7 @@ class Trie {
                     node = node.keys.get(currentLetterSearching);
                     currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    if ( i >= 3 ) {
-
+                    if ( i >= 2 ) { 
                         if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         console.log('CURRENT completeWords==', completeWords);
                         this.setTrieResults(completeWords);
@@ -202,6 +203,7 @@ class Trie {
             if (node.parentRecipeObjects.size > 0) { 
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
+
                 }
             }
             console.log('suggestions FOR THIS WORD==',suggestions );
@@ -280,13 +282,12 @@ export function mapDataToTree(recipes) {
 }
 
 let currentTrie;
-function setCurrentTrie(trie) { currentTrie = trie; }
+function setCurrentTrie(trie) { currentTrie = trie; myStorage.setItem('recipesTrie', currentTrie); }
 function getCurrentTrie() { return currentTrie; }
 
 
 export function searchInTree(searchTerm) {
     let recipesTrie = getCurrentTrie();
-    recipesTrie.resetTrieResults(); recipesTrie.resetTrieSuggestions();
     recipesTrie.searchElementInTrie(searchTerm);
 }
 
