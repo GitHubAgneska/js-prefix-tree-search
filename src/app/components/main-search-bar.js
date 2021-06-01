@@ -47,22 +47,22 @@ export class SearchBar extends HTMLElement {
         mainInputSearch.addEventListener('input', function(event){
             
             currentSearchTerm = event.target.value; // currentSearchTerm is actually a letter
-            if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-'
-            else if ( currentSearchTerm === '') { return ; } else {
-                RecipeModule.processCurrentMainSearch(currentSearchTerm);
-                inputFieldTouched = true;
-                handleManualSearchReset();
-            }
+            if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-' {
+            RecipeModule.processCurrentMainSearch(currentSearchTerm);
+            inputFieldTouched = true;
+            handleManualSearchReset();
         }, false);
 
         // CASE WHERE USER USES BACKSPACE KEY to delete chars : prevent search to start again
         mainInputSearch.addEventListener('keydown', function(event){
+            currentSearchTerm = event.target.value;
             if ( event.key === 'Backspace') {
                 console.log('USER IS SUPPRESSING KEYS');
-
-                handleManualSearchReset();
+                if ( currentSearchTerm === '') {  
+                    handleManualSearchReset();
+                }
                 return false; 
-        }
+            }
             if ( event.key === 'Enter' ) { RecipeModule.confirmCurrentChars(); } // allow partial searchterm confirmation
         }, false);
 

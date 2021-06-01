@@ -182,7 +182,6 @@ class Trie {
         // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s) 
         let nextNode, nextLetter;
         this.goToLastNode = function goToLastNode(node) {
-
             // console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
             // NODE cases:
@@ -190,10 +189,8 @@ class Trie {
             // node.isALeaf => get recipesParentMap
             // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
             if (node.keys.size >= 1 ) {
-
                 // console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
                 for (const [key, value] of node.keys) {
-                    
                     nextNode = value; nextLetter = key;
                     // console.log('NEXT LETTER: ', nextLetter, 'NEXT NODE: ',nextNode );
                     goToLastNode(nextNode);
@@ -203,7 +200,6 @@ class Trie {
             if (node.parentRecipeObjects.size > 0) { 
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
-
                 }
             }
             console.log('suggestions FOR THIS WORD==',suggestions );
