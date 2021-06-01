@@ -116,36 +116,36 @@ export const RecipeModule = (function() {
     }
 
 
-
+    let currentSearchTerm = '';
     // SEARCH FUNCTIONALITY : MAIN SEARCH ==================================================================================================
     // RETRIEVE current search term and call search method
-    function processCurrentMainSearch(currentSearchTerm) {
+    function processCurrentMainSearch(letter) {
 
-        // resetSuggestionsBlock(); resetSearchArray(); resetSuggestedWords();
-
+        console.log('letter===', letter);
+        currentSearchTerm += letter;
+        
         // launch search in trie if 3 chars
         // reset for every new char
         if ( currentSearchTerm.length === 3 ) {
 
-            // resetSuggestionsBlock();
             searchInTree(currentSearchTerm); // launch search in trie
             
             let resultsFromTrie = getTrieResults(); console.log('RESULTS FROM TRIE==', resultsFromTrie);
             let suggestionsFromTrie = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
-            setSuggestions(suggestionsFromTrie); // store suggestions for current searchterm
-            setResults(resultsFromTrie);         // store results for current searchterm
-
-            if ( suggestionsFromTrie || resultsFromTrie ) {
-                processTrieSuggestions(suggestionsFromTrie);  // suggestionsFromTrie = array of maps (  { key: 'word' -> value: [ { recipe1 }, { recipe2 } ] }, { key: 'word' -> value: [ { recipe1 }, { recipe2 } ] } )
-                processTrieResults(resultsFromTrie);                
-                displaySearchResults(resultsFromTrie);
             
-            } else {  // current 3 chars did not produce matches
-                return;
+            if ( suggestionsFromTrie ) {
+                setSuggestions(suggestionsFromTrie); // store suggestions for current searchterm
+                processTrieSuggestions(suggestionsFromTrie);  // suggestionsFromTrie = array of maps (  { key: 'word' -> value: [ { recipe1 }, { recipe2 } ] }, { key: 'word' -> value: [ { recipe1 }, { recipe2 } ] } )
+                if ( resultsFromTrie ) {
+                    setResults(resultsFromTrie);         // store results for current searchterm
+                    processTrieResults(resultsFromTrie);                
+                }
             }
-        } else  {return; }
-
-
+            else {  // current 3 chars did not produce matches
+                displayNoResults();
+            }
+        }
+        currentSearchTerm = '';
     }
 
     // as received from trie : = array of nested maps ( where keys = matching words )
@@ -154,7 +154,7 @@ export const RecipeModule = (function() {
         results.forEach(map => {
             for ( let value of map.values() ){
 
-                let recipesArray = value; console.log('MAP VALUE===', recipesArray); // array of objects
+                let recipesArray = value; // console.log('MAP VALUE===', recipesArray); // array of objects
                 recipesArray.forEach( recipeObj => {
                     if ( !finalArrOfRecipes.includes(recipeObj) ) {
                         finalArrOfRecipes.push(recipeObj);
@@ -169,15 +169,13 @@ export const RecipeModule = (function() {
     // as received from trie : SUGGESTIONS  = array of nested maps ( where keys = matching words + different endings )  )
     // to display a list of suggested words, each map key is sent to the UI list, 
     // if the word is then selected, its value (recipe(s)) is sent out in the results list to be displayed
-    
     let allKeysOfCurrentSuggestions = [];   // keep track of all incoming suggested words
     let allValuesOfCurrentSuggestions = []; // and their linked recipes ( to remove doublons if needed )
-    let allSuggestedRecipes = [];
-
     function processTrieSuggestions(suggestions) {
+        resetSuggestionsBlock();
         
         // console.log('RESETTING KEYS AND VALUES OF SUGGESTIONS: ----  ');
-        // allKeysOfCurrentSuggestions = [];
+        allKeysOfCurrentSuggestions = [];
         // allValuesOfCurrentSuggestions = [];
 
         suggestions.forEach( map => {
@@ -196,20 +194,23 @@ export const RecipeModule = (function() {
                     }
                 });
             }
-            console.log('ALL KEYS OF SUGGESTIONS ARE ==',allKeysOfCurrentSuggestions );
-            console.log('ALL VALUES OF SUGGESTIONS ARE ==',allValuesOfCurrentSuggestions );
+            // console.log('ALL KEYS OF SUGGESTIONS ARE ==',allKeysOfCurrentSuggestions );
+            // console.log('ALL VALUES OF SUGGESTIONS ARE ==',allValuesOfCurrentSuggestions );
             setSuggestedResults(allValuesOfCurrentSuggestions);
         });
         resetSuggestedWords(); // reset suggestions data
     }
+
     let storedSuggestedResults;
     let setSuggestedResults = function( suggestedResults) { storedSuggestedResults = suggestedResults; };
     let getSuggestedResults = function() { return storedSuggestedResults; };
+
 
     // HANDLE SUGGESTIONS ---------------
     // for each new found suggestion, generate list item in suggestions wrapper
     let currentListOfWords = [];
     function addSuggestionInList(suggestion, suggestedRecipes){
+        currentListOfWords = [];
         
         if ( !currentListOfWords.includes(suggestion) ) {
 
@@ -226,7 +227,8 @@ export const RecipeModule = (function() {
             newSuggestion.addEventListener('click', function(event){ selectSuggestedWord(event,suggestedRecipes ); }, false);
             newSuggestion.addEventListener('keydown', function(event){ selectSuggestedWord(event, suggestedRecipes); }, false);
         
-        } else { console.log('WORD IS IN LLIST ALREADY!'); } // word already is suggestions list
+        } else { console.log('WORD IS IN LIST ALREADY!'); } // word already is suggestions list
+        currentListOfWords = [];
     }
 
     function selectSuggestedWord(event, suggestedRecipes) {
@@ -241,6 +243,7 @@ export const RecipeModule = (function() {
         // reset / close suggestion list
         resetSuggestionsBlock(); //UI
         resetSuggestedWords(); // reset suggestions data
+
     }
 
     // case where user presses 'enter' in search bar 
@@ -250,6 +253,8 @@ export const RecipeModule = (function() {
         let suggested = getSuggestedResults();
         setResults(suggested);
         displaySearchResults(suggested);
+        resetSuggestionsBlock(); //UI
+        resetSuggestedWords(); // reset suggestions data
     }
 
 
@@ -262,12 +267,12 @@ export const RecipeModule = (function() {
     let resetSuggestedWords = function () { return storedSuggestions = []; };
     let getSuggestions = function() { return storedSuggestions; };
 
-
-
-    // suggestions list DOM should be reset at each new keystroke
+    
+    // RESET suggestions list DOM  at each new keystroke
     function resetSuggestionsBlock(parent){
         parent = document.querySelector('#main-suggestions');
         while (parent.firstChild) { parent.removeChild(parent.firstChild); }
+        setSuggestions([]);
         return parent;
     }
 
@@ -291,7 +296,7 @@ export const RecipeModule = (function() {
     }
 
     function resetDefaultView() {
-        let allrecipes = JSON.parse(myStorage.getItem('allRecipes' || '[]')); console.log('ALL RECIPES FROM LOCAL STORAGE==', allrecipes);
+        let allrecipes = JSON.parse(myStorage.getItem('allRecipes' || '[]')); // console.log('ALL RECIPES FROM LOCAL STORAGE==', allrecipes);
         setResults(allrecipes);
         displaySearchResults(allrecipes);
     }

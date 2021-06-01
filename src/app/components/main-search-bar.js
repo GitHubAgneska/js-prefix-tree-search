@@ -45,34 +45,37 @@ export class SearchBar extends HTMLElement {
         let inputFieldTouched = false;
 
         mainInputSearch.addEventListener('input', function(event){
-            currentSearchTerm = event.target.value;
-            // process input as it enters field = init match search
-            RecipeModule.processCurrentMainSearch(currentSearchTerm);
-
-            inputFieldTouched = true;
-            handleManualSearchReset();
+            
+            currentSearchTerm = event.target.value; // currentSearchTerm is actually a letter
+            if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-'
+            else if ( currentSearchTerm === '') { return ; } else {
+                RecipeModule.processCurrentMainSearch(currentSearchTerm);
+                inputFieldTouched = true;
+                handleManualSearchReset();
+            }
         }, false);
 
         // CASE WHERE USER USES BACKSPACE KEY to delete chars : prevent search to start again
         mainInputSearch.addEventListener('keydown', function(event){
             if ( event.key === 'Backspace') {
-                console.log('USER IS SUPPRESSING KEYS');return; 
+                console.log('USER IS SUPPRESSING KEYS');
+
+                handleManualSearchReset();
+                return false; 
         }
             if ( event.key === 'Enter' ) { RecipeModule.confirmCurrentChars(); } // allow partial searchterm confirmation
         }, false);
 
-        
+
         // case where user deletes chars until field = empty or deletes the whole searchterm
         // when input has been touched + searchterm is empty + focus still on input
         function handleManualSearchReset(){
             if ( inputFieldTouched && !currentSearchTerm && mainInputSearch == document.activeElement ){
                 console.log('NEW SEARCH PENDING');
-                
                 RecipeModule.resetSearchArray(); // data array
                 RecipeModule.resetSuggestedWords(); // data array
                 RecipeModule.resetSuggestionsBlock(); // dom
                 RecipeModule.removeNoResults(); // remove no results message if needed
-
                 RecipeModule.resetDefaultView();
             }
         }

@@ -66,22 +66,22 @@ class Trie {
                 // case 1 : first time this word is added to tree:
                 // parentRecipeObjects map has been created but is empty
                 if ( !node.parentRecipeObjects.has(fullWord)){ // (fullword should be the key in this map)
-                    console.log('parentRecipeObjects does NOT have this key yet !==');
+                    // console.log('parentRecipeObjects does NOT have this key yet !==');
                     let arrOfRecipes = []; // set up array value to store recipes this word comes from
                     node.parentRecipeObjects.set(fullWord,arrOfRecipes); // set up map with : key:word - value: array of object recipes
-                    console.log('CURRENT WORD JUST ADDED==', fullWord);
-                    let currentRecipe = this.getCurrentRecipeObject(); console.log('RECIPE THIS WORD COMES FROM ==: ', currentRecipe);
+                    // console.log('CURRENT WORD JUST ADDED==', fullWord);
+                    let currentRecipe = this.getCurrentRecipeObject(); // console.log('RECIPE THIS WORD COMES FROM ==: ', currentRecipe);
                     arrOfRecipes.push(currentRecipe); // push recipe object word stems from
-                    console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
+                    // console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
                 
                 // case 2 : the word does already exist in tree : parentRecipeObjects contains key with this word
                 } else if (node.parentRecipeObjects.has(fullWord)){ // (check anyway)
-                    console.log('parentRecipeObjects DOES have this key !');
+                    // console.log('parentRecipeObjects DOES have this key !');
                     let folderOfRecipesKey = node.parentRecipeObjects.get(fullWord);
 
                     let currentRecipe = this.getCurrentRecipeObject();
                     folderOfRecipesKey.push(currentRecipe); // only push current recipe Object to array
-                    console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
+                    // console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
                 }
                 return;
 
@@ -101,7 +101,7 @@ class Trie {
                     let arrOfRecipes = []; // set up array value to store recipes this word is part of
                     
                     let currentInput = this.getCurrentWord();
-                    console.log('PARTIAL WORD ? ==', currentInput);
+                    // console.log('PARTIAL WORD ? ==', currentInput);
                     node.parentRecipeObjects.set(currentInput,arrOfRecipes);
                     arrOfRecipes.push(currentRecipe); // push recipe object word stems from
                 }
@@ -175,6 +175,7 @@ class Trie {
                 }
                 else { return 'sorry no match for ' + searchterm;  }
             }
+            searchterm = '';
         };
 
         // --------------------------------------------------
@@ -182,7 +183,7 @@ class Trie {
         let nextNode, nextLetter;
         this.goToLastNode = function goToLastNode(node) {
 
-            console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
+            // console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
             // NODE cases:
             // node.wordIsComplete => get recipesParentMap AND go to next node
@@ -190,12 +191,11 @@ class Trie {
             // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
             if (node.keys.size >= 1 ) {
 
-                console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
-
+                // console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
                 for (const [key, value] of node.keys) {
                     
                     nextNode = value; nextLetter = key;
-                    console.log('NEXT LETTER: ', nextLetter, 'NEXT NODE: ',nextNode );
+                    // console.log('NEXT LETTER: ', nextLetter, 'NEXT NODE: ',nextNode );
                     goToLastNode(nextNode);
                 }
             }
@@ -243,7 +243,8 @@ export function mapDataToTree(recipes) {
         recipesTrie.setCurrentWord(recipeName);                     // stored to be used when adding to trie last node
         recipesTrie.setCurrentRecipeObject(recipe);                 // same
         // add each word of name if several words length + hyphened version
-        recipeNameWords.forEach( word => { recipesTrie.add(word, node); console.log(word, ':ADDED!***************');});
+        recipeNameWords.forEach( word => { recipesTrie.add(word, node); // console.log(word, ':ADDED!***************');
+        });
         
 
         // process each INGREDIENT and add to tree
@@ -251,10 +252,11 @@ export function mapDataToTree(recipes) {
         recipeIngredients.forEach(item => {
             let ingredientName = item.ingredient; // = ingredient.name
             ingredientName = checkString(ingredientName);           
-            let ingredientNameWords = processIfSeveralWords(ingredientName); console.log('ingredientNameWords=', ingredientNameWords);
+            let ingredientNameWords = processIfSeveralWords(ingredientName); // console.log('ingredientNameWords=', ingredientNameWords);
             recipesTrie.setCurrentWord(ingredientName);
             recipesTrie.setCurrentRecipeObject(recipe);
-            ingredientNameWords.forEach(word => {recipesTrie.add(word, node); console.log(word, ':ADDED!***************');});
+            ingredientNameWords.forEach(word => {recipesTrie.add(word, node); // console.log(word, ':ADDED!***************');
+            });
         });
 
         // process APPLIANCE and add to tree
@@ -263,7 +265,8 @@ export function mapDataToTree(recipes) {
         let recipeApplianceWords = processIfSeveralWords(recipeAppliance);
         recipesTrie.setCurrentWord(recipeAppliance);
         recipesTrie.setCurrentRecipeObject(recipe);
-        recipeApplianceWords.forEach(word => { recipesTrie.add(word, node);console.log(word, ':ADDED!***************'); });
+        recipeApplianceWords.forEach(word => { recipesTrie.add(word, node); // console.log(word, ':ADDED!***************');
+        });
 
         // process each USTENSILS and add to tree
         let recipeUstensils = recipe.ustensils;
@@ -272,11 +275,12 @@ export function mapDataToTree(recipes) {
             let ustensilWords = processIfSeveralWords(ustensil);
             recipesTrie.setCurrentWord(ustensil);
             recipesTrie.setCurrentRecipeObject(recipe);
-            ustensilWords.forEach( word => {  recipesTrie.add(word, node); console.log(word, ':ADDED!***************'); });
+            ustensilWords.forEach( word => {  recipesTrie.add(word, node); // console.log(word, ':ADDED!***************');
+            });
         });
-        console.log('recipesTrie root=', recipesTrie.root);
+        // console.log('recipesTrie root=', recipesTrie.root);
     });
-    console.log('TRIE PRINT===',recipesTrie.print());
+    // console.log('TRIE PRINT===',recipesTrie.print());
     setCurrentTrie(recipesTrie);
     return recipesTrie;
 }
@@ -287,6 +291,7 @@ function getCurrentTrie() { return currentTrie; }
 
 
 export function searchInTree(searchTerm) {
+
     let recipesTrie = getCurrentTrie();
     recipesTrie.searchElementInTrie(searchTerm);
 }

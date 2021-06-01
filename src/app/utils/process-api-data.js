@@ -35,7 +35,7 @@ export function processIfSeveralWords(str){
     const isSeveralWordsRegex = /[']|\s/g;
     const isA2charsWord = /(\b(\w{1,3})\b(\s|$))/g;
     let wordsFromStr = [];
-    console.log('PROCESSING= ', str);
+    // console.log('PROCESSING= ', str);
 
     if ( isSeveralWordsRegex.test(str) ) {                              // 'mousse au chocolat'
         
