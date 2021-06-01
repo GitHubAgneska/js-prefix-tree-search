@@ -89,28 +89,6 @@ export class SearchBar extends HTMLElement {
             // reset search icon replaces serach icon
             searchIcon.classList.remove('d-inline-block'); searchIcon.style.display = 'none';
             resetSearchIcon.style.display = 'inline-block'; // visible
-            
-            /* let inputField = document.querySelector('#main-search-input');
-            inputField.value = currentSearchTerm
-
-             let firstSuggestion = RecipeModule.retrieveFirstSuggestion();
-                let inputField = document.querySelector('#main-search-input');
-                inputField.value = firstSuggestion;
-
-
-            // console.log('currentSearchTerm==', currentSearchTerm);
-            if (currentSearchTerm) {
-                RecipeModule.processCurrentMainSearch(currentSearchTerm);
-                RecipeModule.resetSuggestionsBlock();
-                RecipeModule.displaySearchResults();
-                // display 1st suggestion by default
-                let firstSuggestion = RecipeModule.retrieveFirstSuggestion();
-                let inputField = document.querySelector('#main-search-input');
-                inputField.value = firstSuggestion;
-                // reset search icon replaces serach icon
-                searchIcon.classList.remove('d-inline-block'); searchIcon.style.display = 'none';
-                resetSearchIcon.style.display = 'inline-block'; // visible
-            } */
         }, false);
     }
 }
