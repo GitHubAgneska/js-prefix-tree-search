@@ -45,7 +45,6 @@ export class SearchBar extends HTMLElement {
         let inputFieldTouched = false;
 
         mainInputSearch.addEventListener('input', function(event){
-            
             currentSearchTerm = event.target.value; // currentSearchTerm is actually a letter
             if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-' {
             RecipeModule.processCurrentMainSearch(currentSearchTerm);
@@ -83,10 +82,25 @@ export class SearchBar extends HTMLElement {
         // case where user confirm searchterm manually instead of choosing a word in suggestions
         // then all current results list for all suggested words are displayed
         // + first word in suggestions is 'sent' to input field
-        searchIcon.addEventListener('click', function(event, currentSearchTerm ){
+        searchIcon.addEventListener('click', function(){
+            
             currentSearchTerm = mainInputSearch.value;
+            RecipeModule.confirmCurrentChars();
+            // reset search icon replaces serach icon
+            searchIcon.classList.remove('d-inline-block'); searchIcon.style.display = 'none';
+            resetSearchIcon.style.display = 'inline-block'; // visible
+            
+            /* let inputField = document.querySelector('#main-search-input');
+            inputField.value = currentSearchTerm
+
+             let firstSuggestion = RecipeModule.retrieveFirstSuggestion();
+                let inputField = document.querySelector('#main-search-input');
+                inputField.value = firstSuggestion;
+
+
             // console.log('currentSearchTerm==', currentSearchTerm);
-            if (currentSearchTerm && currentSearchTerm !== null) {
+            if (currentSearchTerm) {
+                RecipeModule.processCurrentMainSearch(currentSearchTerm);
                 RecipeModule.resetSuggestionsBlock();
                 RecipeModule.displaySearchResults();
                 // display 1st suggestion by default
@@ -96,7 +110,7 @@ export class SearchBar extends HTMLElement {
                 // reset search icon replaces serach icon
                 searchIcon.classList.remove('d-inline-block'); searchIcon.style.display = 'none';
                 resetSearchIcon.style.display = 'inline-block'; // visible
-            }
+            } */
         }, false);
     }
 }

@@ -128,10 +128,10 @@ export const RecipeModule = (function() {
     let resetSuggestedWords = function () { return storedSuggestions = []; };
     let getSuggestions = function() { return storedSuggestions; };
 
+    // STORE results corresponding to all suggested words for a searchterm
     let storedSuggestedResults;
     let setSuggestedResults = function( suggestedResults) { storedSuggestedResults = suggestedResults; };
     let getSuggestedResults = function() { return storedSuggestedResults; };
-    
     
     
     let currentSearchTerm = '';
@@ -297,7 +297,8 @@ export const RecipeModule = (function() {
 
     // reset all search
     function resetSearch(event) {
-        window.location.reload();  // ------------- // TO REVIEW : TRIE should be CACHED 
+        window.location.reload();  // ------------- // TO REVIEW : TRIE should be CACHED
+        myStorage.getItem('recipesTrie');
     }
 
     function resetDefaultView() {
@@ -499,7 +500,6 @@ export const RecipeModule = (function() {
         resetSuggestionsBlock:resetSuggestionsBlock,
         resetSearchArray: resetSearchArray,
         resetSuggestedWords: resetSuggestedWords,
-
         setResults: setResults,
         getResults: getResults,
         setSuggestions: setSuggestions,
