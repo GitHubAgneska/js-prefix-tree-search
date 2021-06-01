@@ -1,6 +1,7 @@
 
-
-// Convert api content from 'text/plain' to JSON
+// -----------------------------------------------------
+// Convert api content from 'text/plain' to JSON  - not in use atm
+// -----------------------------------------------------
 export function parseApiData(data) {
     // console.log(typeof(data)); // = string
     let localData = data;

@@ -19,7 +19,7 @@ class Node {
         this.setIsASubtree = function() { this.isASubtree = true;  this.isALeaf = false;};
         this.IsASubtree = function() { return this.isASubtree; };
 
-        this.isALeaf = function() { this.keys.size === 0; };  // => last node of a branch : node.keys.size === 0
+        this.isALeaf = function() { return this.keys.size === 0; };  // => last node of a branch : node.keys.size === 0
         
         this.visited = false; // keep track of path when inspecting trie
         this.parentRecipeObjects = new Map(); // if 'isEnd' ( end of a word) : store :  word:KEY + array containing objects:VALUE
