@@ -134,7 +134,7 @@ export const RecipeModule = (function() {
     let getSuggestedResults = function() { return storedSuggestedResults; };
     
     // BROWSER PERF TESTS --------------------------------------------------
-    const t0 = performance.now();
+    let t0, t1;
     // ---------------------------------------------------------------------
 
 
@@ -145,15 +145,16 @@ export const RecipeModule = (function() {
         console.log('letter===', letter);
         currentSearchTerm += letter;
 
-        let previousSuggestions = getSuggestions();
-        console.log('previousSuggestions BEFORE reset====',previousSuggestions);
         resetSuggestedWords(); 
-        console.log('previousSuggestions AFTER reset====',previousSuggestions);
 
         // launch search in trie if 3 chars
         // reset for every new char
         if ( currentSearchTerm.length === 3 ) {
             resetSuggestedWords();
+
+            // BROWSER - PERF TESTS --------------------
+            t0 = performance.now();
+            // -----------------------------------------
 
             searchInTree(currentSearchTerm); // launch search in trie
             
@@ -186,6 +187,12 @@ export const RecipeModule = (function() {
             }
         });
         setResults(finalArrOfRecipes);
+
+        // BROWSER - PERF TESTS --------------------
+        t1 = performance.now();
+        console.log('FIND SEARCH TERM took', t1 - t0, 'milliseconds');
+        // -----------------------------------------
+
         console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
     }
 
