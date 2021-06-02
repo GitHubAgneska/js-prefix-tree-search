@@ -133,7 +133,11 @@ export const RecipeModule = (function() {
     let setSuggestedResults = function( suggestedResults) { storedSuggestedResults = suggestedResults; };
     let getSuggestedResults = function() { return storedSuggestedResults; };
     
-    
+    // BROWSER PERF TESTS --------------------------------------------------
+    const t0 = performance.now();
+    // ---------------------------------------------------------------------
+
+
     let currentSearchTerm = '';
     // RETRIEVE current search term and call search method
     function processCurrentMainSearch(letter) {
@@ -245,8 +249,12 @@ export const RecipeModule = (function() {
         } else { // word already is suggestions list
             console.log('WORD IS IN LIST ALREADY!');
         } 
-
     }
+
+    // BROWSER PERF TESTS -------------------------------------------------
+    const t1 = performance.now();
+    console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
+    // ---------------------------------------------------------------------
 
     function selectSuggestedWord(event, suggestedRecipes) {
         let word = event.target.innerText; // text inside <p> element where event occurs
