@@ -116,7 +116,6 @@ export const RecipeModule = (function() {
     }
 
 
-    
     // SEARCH FUNCTIONALITY : MAIN SEARCH ==================================================================================================
     
     // STORE results in the module, until display method needs them
@@ -142,7 +141,7 @@ export const RecipeModule = (function() {
     // RETRIEVE current search term and call search method
     function processCurrentMainSearch(letter) {
     
-        console.log('letter===', letter);
+        // console.log('letter===', letter);
         currentSearchTerm += letter;
 
         resetSuggestedWords(); 
@@ -158,8 +157,8 @@ export const RecipeModule = (function() {
 
             searchInTree(currentSearchTerm); // launch search in trie
             
-            let resultsFromTrie = getTrieResults(); console.log('RESULTS FROM TRIE==', resultsFromTrie);
-            let suggestionsFromTrie = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
+            let resultsFromTrie = getTrieResults(); // console.log('RESULTS FROM TRIE==', resultsFromTrie);
+            let suggestionsFromTrie = getTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
             
             if ( suggestionsFromTrie ) {
                 processTrieSuggestions(suggestionsFromTrie);
@@ -193,7 +192,7 @@ export const RecipeModule = (function() {
         console.log('FIND SEARCH TERM took', t1 - t0, 'milliseconds');
         // -----------------------------------------
 
-        console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
+        console.log('RESULTS ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
     }
 
     // as received from trie : SUGGESTIONS  = array of nested maps ( where keys = matching words + different endings )  )
@@ -240,7 +239,7 @@ export const RecipeModule = (function() {
         
         if ( !currentListOfWords.includes(suggestion) ) {
 
-            currentListOfWords.push(suggestion); console.log('CURRENT LIST OF WORDS===',currentListOfWords);
+            currentListOfWords.push(suggestion); // console.log('CURRENT LIST OF WORDS===',currentListOfWords);
 
             let newSuggestion = document.createElement('p');
             let newSuggestedWord = document.createTextNode(suggestion);
@@ -254,7 +253,8 @@ export const RecipeModule = (function() {
             newSuggestion.addEventListener('keydown', function(event){ selectSuggestedWord(event, suggestedRecipes); }, false);
         
         } else { // word already is suggestions list
-            console.log('WORD IS IN LIST ALREADY!');
+            // console.log('WORD IS IN LIST ALREADY!');
+            return;
         } 
     }
 

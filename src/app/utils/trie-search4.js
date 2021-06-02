@@ -160,20 +160,20 @@ class Trie {
                 
                 if (node.keys.has(currentLetterSearching)) {
                     node = node.keys.get(currentLetterSearching);
-                    currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
+                    currentlyFound += currentLetterSearching; // console.log('CURRENTLY FOUND==', currentlyFound);
 
                     if ( i >= 2 ) { 
                         if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
-                        console.log('CURRENT completeWords==', completeWords);
+                        // console.log('CURRENT completeWords==', completeWords);
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node; 
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
                         this.setTrieSuggestions(suggestions);
-                        console.log('SUGGESTIONS WOULD BE ===', suggestions); 
+                        // console.log('SUGGESTIONS WOULD BE ===', suggestions); 
                     }
                 }
-                else { return 'sorry no match for ' + searchterm;  }
+                else { return;  }
             }
             searchterm = '';
         };
@@ -196,13 +196,12 @@ class Trie {
                     goToLastNode(nextNode);
                 }
             }
-                
             if (node.parentRecipeObjects.size > 0) { 
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
                 }
             }
-            console.log('suggestions FOR THIS WORD==',suggestions );
+            // console.log('suggestions FOR THIS WORD==',suggestions );
             return suggestions;
         };
 
