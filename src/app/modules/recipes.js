@@ -258,11 +258,6 @@ export const RecipeModule = (function() {
         } 
     }
 
-    // BROWSER PERF TESTS -------------------------------------------------
-    const t1 = performance.now();
-    console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
-    // ---------------------------------------------------------------------
-
     function selectSuggestedWord(event, suggestedRecipes) {
         let word = event.target.innerText; // text inside <p> element where event occurs
         let inputField = document.querySelector('#main-search-input');
