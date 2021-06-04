@@ -45,7 +45,7 @@ export class SearchBar extends HTMLElement {
         let inputFieldTouched = false;
 
         mainInputSearch.addEventListener('input', function(event){
-            currentSearchTerm = event.target.value; // currentSearchTerm is actually a letter
+            currentSearchTerm = event.target.value; // ( currentSearchTerm is actually a letter .. )
             if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-' {
             RecipeModule.processCurrentMainSearch(currentSearchTerm);
             inputFieldTouched = true;
@@ -56,13 +56,11 @@ export class SearchBar extends HTMLElement {
         mainInputSearch.addEventListener('keydown', function(event){
             currentSearchTerm = event.target.value;
             if ( event.key === 'Backspace') {
-                console.log('USER IS SUPPRESSING KEYS');
-                if ( currentSearchTerm === '') {  
-                    handleManualSearchReset();
-                }
-                return false; 
+                // console.log('USER IS SUPPRESSING KEYS');
+                if ( currentSearchTerm === '') { handleManualSearchReset(); }
+                return false; // prevent more system reaction
             }
-            if ( event.key === 'Enter' ) { RecipeModule.confirmCurrentChars(); } // allow partial searchterm confirmation
+            if ( event.key === 'Enter' ) { RecipeModule.confirmCurrentChars(); } // allow manual searchterm confirmation
         }, false);
 
 
@@ -71,11 +69,7 @@ export class SearchBar extends HTMLElement {
         function handleManualSearchReset(){
             if ( inputFieldTouched && !currentSearchTerm && mainInputSearch == document.activeElement ){
                 console.log('NEW SEARCH PENDING');
-                RecipeModule.resetSearchArray(); // data array
-                RecipeModule.resetSuggestedWords(); // data array
-                RecipeModule.resetSuggestionsBlock(); // dom
-                RecipeModule.removeNoResults(); // remove no results message if needed
-                RecipeModule.resetDefaultView();
+                RecipeModule.resetAllForNewSearch();
             }
         }
         

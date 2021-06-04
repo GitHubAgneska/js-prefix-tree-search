@@ -53,6 +53,16 @@ class Trie {
         let currentRecipeObject;
         this.setCurrentRecipeObject = function(recipeObject) { currentRecipeObject = recipeObject; };
         this.getCurrentRecipeObject = function() { return currentRecipeObject; };
+
+        // --------------------------------------------------
+        // STORE results of search
+        this.setTrieResults = function(results) { this.results = results; };
+        this.resetTrieResults = function () { return this.results = []; };
+        this.getTrieResults = function () { return this.results; };
+
+        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
+        this.resetTrieSuggestions = function () { this.suggestions = []; };
+        this.getTrieSuggestions = function () { return this.suggestions; };
         
         // --------------------------------------------------
         // ADD A WORD - ( here, as iterating through all recipes to add words to the tree, also pass current recipe as param)
@@ -78,7 +88,6 @@ class Trie {
                 } else if (node.parentRecipeObjects.has(fullWord)){ // (check anyway)
                     // console.log('parentRecipeObjects DOES have this key !');
                     let folderOfRecipesKey = node.parentRecipeObjects.get(fullWord);
-
                     let currentRecipe = this.getCurrentRecipeObject();
                     folderOfRecipesKey.push(currentRecipe); // only push current recipe Object to array
                     // console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
@@ -151,6 +160,10 @@ class Trie {
             let completeWords = [];
             let suggestions = [];
 
+            this.resetTrieSuggestions();
+            this.suggestions = [];
+            completeWords = [];
+
             if (node === undefined) { node = this.root; }
 
             let arrFromSearchterm = searchterm.split('');
@@ -162,18 +175,25 @@ class Trie {
                     node = node.keys.get(currentLetterSearching);
                     currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    if ( i >= 2 ) { 
-                        if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
+                    if ( i >= 2 ) { // from 2 chars matching, 
+                        
+                        if (node.parentRecipeObjects.size > 0) { 
+                            console.log('THIS NODE PARENTRECIPESOBJ SIZE >=2 :',node.parentRecipeObjects);
+                            completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
+                        } 
+
                         console.log('CURRENT completeWords==', completeWords);
                         this.setTrieResults(completeWords);
 
-                        lastMatchingNode = node; 
+                        lastMatchingNode = node;
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
+                        
                         this.setTrieSuggestions(suggestions);
-                        console.log('SUGGESTIONS WOULD BE ===', suggestions); 
+                        console.log('SUGGESTIONS WOULD BE ===', suggestions);
+                        this.setTrieResults(suggestions);
                     }
                 }
-                else { return 'sorry no match for ' + searchterm;  }
+                else { return;  }
             }
             searchterm = '';
         };
@@ -184,6 +204,8 @@ class Trie {
         this.goToLastNode = function goToLastNode(node) {
             // console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
+            suggestions = [];
+            // console.log('GO TO LAST NODE SUGGESTIONS==', suggestions);
             // NODE cases:
             // node.wordIsComplete => get recipesParentMap AND go to next node
             // node.isALeaf => get recipesParentMap
@@ -196,25 +218,14 @@ class Trie {
                     goToLastNode(nextNode);
                 }
             }
-                
-            if (node.parentRecipeObjects.size > 0) { 
+            if (node.parentRecipeObjects.size > 0) {
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
                 }
             }
-            console.log('suggestions FOR THIS WORD==',suggestions );
+            // console.log('suggestions FOR THIS WORD==',suggestions );
             return suggestions;
         };
-
-        // --------------------------------------------------
-        // STORE results of search
-        this.setTrieResults = function(results) { this.results = results; };
-        this.resetTrieResults = function () { return this.results = []; };
-        this.getTrieResults = function () { return this.results; };
-
-        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
-        this.resetTrieSuggestions = function () { return this.suggestions = []; };
-        this.getTrieSuggestions = function () { return this.suggestions; };
     }
 }
 
