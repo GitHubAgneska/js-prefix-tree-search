@@ -4,8 +4,8 @@
 card-component {
     margin: 1% 0;
     display: flex;
-    max-width: 50%;
-    // *:not(.recipe-txt) { font-family: Lato;}
+
+    .col { @include min-992px { }}
 
     .card.recipe-card {
         width: 400px !important; height: 350px !important;

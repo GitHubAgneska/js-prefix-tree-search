@@ -176,7 +176,6 @@ export class CollapsingMenu extends HTMLElement{
             if ( event.key === 'Enter') {
                 // launch search for term in current results
                 RecipeModule.processAdvancedSearch(searchTerm, currentCategoryName);
-
                 // a new tag for search word is generated above menus if term exists in api data
                 // ( check first if exists already )
                 let currentTags = getTagsList();
@@ -300,16 +299,15 @@ export class CollapsingMenu extends HTMLElement{
             tagCloseIcon.setAttribute('id', 'close-'+ searchTerm);
 
             const containsParenthesesRegex = /\((.*)\)/;
-
-            if ( containsParenthesesRegex.test(searchTerm) ){ // ---------- to review
+            if ( containsParenthesesRegex.test(searchTerm) ){ // ---------- to review -- used in 1 or 2 cases only
                 console.log('contains parentheses');
                 removePunctuation(searchTerm);
             }
-            console.log('searchTerm after remove==', searchTerm);
             let tagText = document.createTextNode(searchTerm);
             searchItemTag.appendChild(tagText);
             searchItemTag.appendChild(tagCloseIcon);
             tagCloseIcon.addEventListener('click', function(event) { removeTag(event);}, false);
+            
             return searchItemTag;
         }
 
@@ -319,7 +317,8 @@ export class CollapsingMenu extends HTMLElement{
         // ELSE => reset default view
         function checkNoRemainingTag() {
             let tagsWrapper = document.querySelector('#tagsWrapper');
-            if ( !tagsWrapper.childNodes ) { console.log('ALL TAGS REMOVED !');
+            if ( !tagsWrapper.hasChildNodes()  ) {
+                // console.log('ALL TAGS REMOVED !');
                 noTagsRemaining = true;
             }
             return noTagsRemaining;
@@ -344,8 +343,6 @@ export class CollapsingMenu extends HTMLElement{
                 RecipeModule.handleAdvancedSearchReset();
             }
         }
-
-        
     }
 }
 

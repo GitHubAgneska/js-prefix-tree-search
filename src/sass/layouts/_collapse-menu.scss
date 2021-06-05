@@ -105,6 +105,7 @@
                 @include min-992px { width: 33%;}
             }
             menu-list-item-component li {
+                list-style: none;
                 a {
                     font-size: 0.8em;
                 }
