@@ -173,13 +173,8 @@ class Trie {
                 
                 if (node.keys.has(currentLetterSearching)) {
                     node = node.keys.get(currentLetterSearching);
-                    currentlyFound += currentLetterSearching; // console.log('CURRENTLY FOUND==', currentlyFound);
+                    currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
 
-<<<<<<< HEAD
-                    if ( i >= 2 ) { 
-                        if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
-                        // console.log('CURRENT completeWords==', completeWords);
-=======
                     if ( i >= 2 ) { // from 2 chars matching, 
                         
                         if (node.parentRecipeObjects.size > 0) { 
@@ -188,18 +183,13 @@ class Trie {
                         } 
 
                         console.log('CURRENT completeWords==', completeWords);
->>>>>>> 132120712558ece70be7e6979e03818fdd05e6d0
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node;
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
                         this.setTrieSuggestions(suggestions);
-<<<<<<< HEAD
-                        // console.log('SUGGESTIONS WOULD BE ===', suggestions); 
-=======
                         console.log('SUGGESTIONS WOULD BE ===', suggestions);
                         
->>>>>>> 132120712558ece70be7e6979e03818fdd05e6d0
                     }
                 }
                 else { return;  }
@@ -225,11 +215,7 @@ class Trie {
                     goToLastNode(nextNode);
                 }
             }
-<<<<<<< HEAD
-            if (node.parentRecipeObjects.size > 0) { 
-=======
             if (node.parentRecipeObjects.size > 0) {
->>>>>>> 132120712558ece70be7e6979e03818fdd05e6d0
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
                 }
