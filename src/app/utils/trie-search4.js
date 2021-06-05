@@ -1,7 +1,7 @@
 
 import {checkString, processIfSeveralWords} from '../utils/process-api-data';
 
-// SET-UP LOCAL STORAGE FOR - all recipes array
+// SET-UP LOCAL STORAGE FOR - all recipes trie
 const myStorage = window.localStorage;
 
 let id = 0;
@@ -53,6 +53,16 @@ class Trie {
         let currentRecipeObject;
         this.setCurrentRecipeObject = function(recipeObject) { currentRecipeObject = recipeObject; };
         this.getCurrentRecipeObject = function() { return currentRecipeObject; };
+
+        // --------------------------------------------------
+        // STORE results of search
+        this.setTrieResults = function(results) { this.results = results; };
+        this.resetTrieResults = function () { return this.results = []; };
+        this.getTrieResults = function () { return this.results; };
+
+        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
+        this.resetTrieSuggestions = function () { return this.suggestions = []; };
+        this.getTrieSuggestions = function () { return this.suggestions; };
         
         // --------------------------------------------------
         // ADD A WORD - ( here, as iterating through all recipes to add words to the tree, also pass current recipe as param)
@@ -78,7 +88,6 @@ class Trie {
                 } else if (node.parentRecipeObjects.has(fullWord)){ // (check anyway)
                     // console.log('parentRecipeObjects DOES have this key !');
                     let folderOfRecipesKey = node.parentRecipeObjects.get(fullWord);
-
                     let currentRecipe = this.getCurrentRecipeObject();
                     folderOfRecipesKey.push(currentRecipe); // only push current recipe Object to array
                     // console.log('NOW IN NODE RECIPES FOLDER ==:', node.parentRecipeObjects);
@@ -151,6 +160,10 @@ class Trie {
             let completeWords = [];
             let suggestions = [];
 
+            // this.resetTrieSuggestions();
+            // this.suggestions = [];
+            completeWords = [];
+
             if (node === undefined) { node = this.root; }
 
             let arrFromSearchterm = searchterm.split('');
@@ -162,15 +175,31 @@ class Trie {
                     node = node.keys.get(currentLetterSearching);
                     currentlyFound += currentLetterSearching; // console.log('CURRENTLY FOUND==', currentlyFound);
 
+<<<<<<< HEAD
                     if ( i >= 2 ) { 
                         if (node.parentRecipeObjects.size > 0) { completeWords.push(node.parentRecipeObjects); }  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         // console.log('CURRENT completeWords==', completeWords);
+=======
+                    if ( i >= 2 ) { // from 2 chars matching, 
+                        
+                        if (node.parentRecipeObjects.size > 0) { 
+                            console.log('THIS NODE PARENTRECIPESOBJ SIZE >=2 :',node.parentRecipeObjects);
+                            completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
+                        } 
+
+                        console.log('CURRENT completeWords==', completeWords);
+>>>>>>> 132120712558ece70be7e6979e03818fdd05e6d0
                         this.setTrieResults(completeWords);
 
-                        lastMatchingNode = node; 
+                        lastMatchingNode = node;
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
                         this.setTrieSuggestions(suggestions);
+<<<<<<< HEAD
                         // console.log('SUGGESTIONS WOULD BE ===', suggestions); 
+=======
+                        console.log('SUGGESTIONS WOULD BE ===', suggestions);
+                        
+>>>>>>> 132120712558ece70be7e6979e03818fdd05e6d0
                     }
                 }
                 else { return;  }
@@ -179,15 +208,15 @@ class Trie {
         };
 
         // --------------------------------------------------
-        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s) 
+        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s)
+        // NODE cases:
+        // node.wordIsComplete AND keys.size > 0 => get recipesParentMap AND go to next node
+        // node.isALeaf => get recipesParentMap
+        // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR === wordIsComplete )
         let nextNode, nextLetter;
         this.goToLastNode = function goToLastNode(node) {
-            // console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
-            // NODE cases:
-            // node.wordIsComplete => get recipesParentMap AND go to next node
-            // node.isALeaf => get recipesParentMap
-            // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
+            suggestions = [];
             if (node.keys.size >= 1 ) {
                 // console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
                 for (const [key, value] of node.keys) {
@@ -196,7 +225,11 @@ class Trie {
                     goToLastNode(nextNode);
                 }
             }
+<<<<<<< HEAD
             if (node.parentRecipeObjects.size > 0) { 
+=======
+            if (node.parentRecipeObjects.size > 0) {
+>>>>>>> 132120712558ece70be7e6979e03818fdd05e6d0
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
                     suggestions.push(node.parentRecipeObjects); 
                 }
@@ -204,16 +237,6 @@ class Trie {
             // console.log('suggestions FOR THIS WORD==',suggestions );
             return suggestions;
         };
-
-        // --------------------------------------------------
-        // STORE results of search
-        this.setTrieResults = function(results) { this.results = results; };
-        this.resetTrieResults = function () { return this.results = []; };
-        this.getTrieResults = function () { return this.results; };
-
-        this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
-        this.resetTrieSuggestions = function () { return this.suggestions = []; };
-        this.getTrieSuggestions = function () { return this.suggestions; };
     }
 }
 
@@ -284,9 +307,7 @@ let currentTrie;
 function setCurrentTrie(trie) { currentTrie = trie; myStorage.setItem('recipesTrie', currentTrie); }
 function getCurrentTrie() { return currentTrie; }
 
-
 export function searchInTree(searchTerm) {
-
     let recipesTrie = getCurrentTrie();
     recipesTrie.searchElementInTrie(searchTerm);
 }
