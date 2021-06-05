@@ -8,7 +8,7 @@ export class CardTemplate extends HTMLElement {
         this.setAttribute('class', 'col');
         this.innerHTML = 
             `
-            <div class="card recipe-card col m-0 p-0">
+            <div class="card recipe-card col col m-0 p-0">
                 <img src="" class="card-img-top" alt="">
                 <div class="card-body">
                     <div class="card-header-recipe row">

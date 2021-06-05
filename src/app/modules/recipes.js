@@ -155,10 +155,6 @@ export const RecipeModule = (function() {
             t0 = performance.now();
             // -----------------------------------------
 
-            // BROWSER - PERF TESTS --------------------
-            t0 = performance.now();
-            // -----------------------------------------
-
             searchInTree(currentSearchTerm); // launch search in trie
             
             let resultsFromTrie = getTrieResults(); // console.log('RESULTS FROM TRIE==', resultsFromTrie);
