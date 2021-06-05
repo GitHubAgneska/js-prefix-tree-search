@@ -580,7 +580,7 @@
                     "unit": "grammes"
                 },
                 {
-                    "ingredient": "Banane",
+                    "ingredient": "Bananes",
                     "quantity": 4
                 }
             ],
@@ -703,7 +703,7 @@
             "servings": 4,
             "ingredients": [
                 {
-                    "ingredient": "Kiwi",
+                    "ingredient": "Kiwis",
                     "quantity": 4
                 },
                 {
@@ -721,7 +721,7 @@
                     "unit": "grammes"
                 },
                 {
-                    "ingredient": "Banane",
+                    "ingredient": "Bananes",
                     "quantity": 1
                 }
             ],
