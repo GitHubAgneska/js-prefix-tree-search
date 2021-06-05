@@ -242,10 +242,11 @@ export class CollapsingMenu extends HTMLElement{
         }
 
         function resetSuggestions(currentSuggestions) {
+            while (suggestionsWrapper.firstChild) {suggestionsWrapper.removeChild(suggestionsWrapper.firstChild); }
             if (currentSuggestions) { 
                 while( currentSuggestions.length > 0 ) { currentSuggestions.pop(); } // remove arr items
-                while (suggestionsWrapper.firstChild) {suggestionsWrapper.removeChild(suggestionsWrapper.firstChild); }
             } else { return; }
+            
         }
 
         // case where user deletes chars until field = empty or deletes the whole searchterm
