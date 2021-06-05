@@ -266,10 +266,15 @@ export class CollapsingMenu extends HTMLElement{
         // HANDLE TAGS OF ADVANCED SEARCH ==================================================
         let setTagsList = function(tag) { currentTags.push(tag); }; // keep track of tags to prevent displaying the same one more than once
         let getTagsList = function() { return currentTags; }; // AND is used by search method that needs an up-to-date array of tags
+        
         let removeTagFromList = function(tag) {
-            console.log('currenttags==', currentTags, 'type==', typeof(currentTags));
+            
+            let currenttags = getTagsList();
+            console.log('currenttags==', currenttags);
+
             let tagIndex = currentTags.indexOf(tag);
             currentTags.splice(tagIndex, 1);
+            console.log('currenttags AFTER REMOVE==', currentTags, 'type==', typeof(currentTags));
             return currentTags;
         };
 
@@ -308,6 +313,18 @@ export class CollapsingMenu extends HTMLElement{
             return searchItemTag;
         }
 
+        let noTagsRemaining;
+        // case where all tags have been removed : inform module :
+        // IF there was a main search => reset displaying main search results
+        // ELSE => reset default view
+        function checkNoRemainingTag() {
+            let tagsWrapper = document.querySelector('#tagsWrapper');
+            if ( !tagsWrapper.childNodes ) { console.log('ALL TAGS REMOVED !');
+                noTagsRemaining = true;
+            }
+            return noTagsRemaining;
+        }
+
         // delete tag (via icon)
         function removeTag(event) {
             event.stopPropagation();
@@ -320,8 +337,15 @@ export class CollapsingMenu extends HTMLElement{
             // update results list
             removeTagFromList(tagToRemove.textContent);
             currentTags = getTagsList();
-            currentTags.forEach(term => {RecipeModule.processAdvancedSearch(term, currentCategoryName); });
+            currentTags.forEach(term => {RecipeModule.processAdvancedSearch(term, categoryName); });
+            
+            checkNoRemainingTag();
+            if ( noTagsRemaining ) {
+                RecipeModule.handleAdvancedSearchReset();
+            }
         }
+
+        
     }
 }
 
