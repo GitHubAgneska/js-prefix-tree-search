@@ -344,8 +344,6 @@ export class CollapsingMenu extends HTMLElement{
                 RecipeModule.handleAdvancedSearchReset();
             }
         }
-
-        
     }
 }
 
