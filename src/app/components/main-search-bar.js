@@ -56,9 +56,8 @@ export class SearchBar extends HTMLElement {
         mainInputSearch.addEventListener('keydown', function(event){
             currentSearchTerm = event.target.value;
             if ( event.key === 'Backspace') {
-                // console.log('USER IS SUPPRESSING KEYS');
-                if ( currentSearchTerm === '') { handleManualSearchReset(); }
-                return false; // prevent more system reaction
+                handleManualSearchReset();
+                return false; // prevent more search
             }
             if ( event.key === 'Enter' ) { RecipeModule.confirmCurrentChars(); } // allow manual searchterm confirmation
         }, false);
@@ -70,6 +69,7 @@ export class SearchBar extends HTMLElement {
             if ( inputFieldTouched && !currentSearchTerm && mainInputSearch == document.activeElement ){
                 console.log('NEW SEARCH PENDING');
                 RecipeModule.resetAllForNewSearch();
+                RecipeModule.resetDefaultView();
             }
         }
         
@@ -77,7 +77,6 @@ export class SearchBar extends HTMLElement {
         // then all current results list for all suggested words are displayed
         // + first word in suggestions is 'sent' to input field
         searchIcon.addEventListener('click', function(){
-            
             currentSearchTerm = mainInputSearch.value;
             RecipeModule.confirmCurrentChars();
             // reset search icon replaces serach icon

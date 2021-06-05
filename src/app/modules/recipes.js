@@ -118,18 +118,23 @@ export const RecipeModule = (function() {
     let advancedSearchResults = [];
     // STORE results in the module, until display method needs them
     let setResults = function(results) { storedResults = results; };
-    let resetResults = function() { return storedResults = []; };
+    let resetResults = function() { storedResults = []; };
     let getResults = function() { return storedResults; };
 
     // STORE suggestions in the module, until display method needs them
     let setSuggestions = function(suggestions) { storedSuggestions = suggestions; };
-    let resetSuggestions = function () { return storedSuggestions = []; };
+    let resetSuggestions = function () { storedSuggestions = []; };
     let getSuggestions = function() { return storedSuggestions; };
 
     // STORE results corresponding to all suggested words for a searchterm
     let storedSuggestedResults;
     let setSuggestedResults = function( suggestedResults) { storedSuggestedResults = suggestedResults; };
     let getSuggestedResults = function() { return storedSuggestedResults; };
+    let resetSuggestedResults = function() { return storedSuggestedResults = []; };
+
+    function resetAllFromPreviousSearch() {
+        resetSuggestions(); resetResults(); resetSuggestedResults();
+    }
     
     // BROWSER PERF TESTS --------------------------------------------------
     let t0, t1;
@@ -140,7 +145,7 @@ export const RecipeModule = (function() {
     function processCurrentMainSearch(letter) {
         // console.log('letter===', letter);
         currentSearchTerm += letter;
-        resetSuggestions(); resetResults();
+        resetAllFromPreviousSearch();
 
         // launch search in trie if 3 chars
         // reset for every new char 

@@ -100,6 +100,13 @@ export class CollapsingMenu extends HTMLElement{
         menuHeaderClose.addEventListener('click', function(event){ menuOpen(event),{ once: true }; }, false);
         
         function menuOpen(event) {
+
+            // make sure suggestions = reset from last search
+            suggestionsWrapper.style.display = 'none';
+            resetSuggestions();
+            cardBodyList.style.display = 'flex';
+
+        
             menuHeaderClose = event.currentTarget; // element that handles event
             event.stopPropagation();
             
@@ -193,7 +200,7 @@ export class CollapsingMenu extends HTMLElement{
             currentCategoryName = currentCategoryName.slice(11, currentCategoryName.length);
         
             // console.log('currentCategoryName==',currentCategoryName);
-            if (searchTerm.length > 3) {
+            if (searchTerm.length === 3) {
                 processManualInputSearchIntoCurrentList(searchTerm, currentCategoryName);
             }
             inputFieldTouched = true;
@@ -236,7 +243,8 @@ export class CollapsingMenu extends HTMLElement{
 
         function resetSuggestions(currentSuggestions) {
             if (currentSuggestions) { 
-                while( currentSuggestions.length > 0  ) { currentSuggestions.pop(); } // remove arr items
+                while( currentSuggestions.length > 0 ) { currentSuggestions.pop(); } // remove arr items
+                while (suggestionsWrapper.firstChild) {suggestionsWrapper.removeChild(suggestionsWrapper.firstChild); }
             } else { return; }
         }
 
@@ -248,7 +256,7 @@ export class CollapsingMenu extends HTMLElement{
                 RecipeModule.removeNoResults(); // remove no results message if needed
                 resetSuggestions(currentSuggestions);// remove dom suggestions
                 // hide suggestions wrapper
-                cardBodySuggestions.style.display = 'none';
+                suggestionsWrapper.style.display = 'none';
                 // if input field empty, show default list elements again
                 cardBodyList.style.display = 'flex';
             }

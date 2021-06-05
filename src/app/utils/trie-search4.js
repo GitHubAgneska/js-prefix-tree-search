@@ -1,7 +1,7 @@
 
 import {checkString, processIfSeveralWords} from '../utils/process-api-data';
 
-// SET-UP LOCAL STORAGE FOR - all recipes array
+// SET-UP LOCAL STORAGE FOR - all recipes trie
 const myStorage = window.localStorage;
 
 let id = 0;
@@ -61,7 +61,7 @@ class Trie {
         this.getTrieResults = function () { return this.results; };
 
         this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
-        this.resetTrieSuggestions = function () { this.suggestions = []; };
+        this.resetTrieSuggestions = function () { return this.suggestions = []; };
         this.getTrieSuggestions = function () { return this.suggestions; };
         
         // --------------------------------------------------
@@ -160,8 +160,8 @@ class Trie {
             let completeWords = [];
             let suggestions = [];
 
-            this.resetTrieSuggestions();
-            this.suggestions = [];
+            // this.resetTrieSuggestions();
+            // this.suggestions = [];
             completeWords = [];
 
             if (node === undefined) { node = this.root; }
@@ -187,10 +187,9 @@ class Trie {
 
                         lastMatchingNode = node;
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
-                        
                         this.setTrieSuggestions(suggestions);
                         console.log('SUGGESTIONS WOULD BE ===', suggestions);
-                        this.setTrieResults(suggestions);
+                        
                     }
                 }
                 else { return;  }
@@ -199,17 +198,15 @@ class Trie {
         };
 
         // --------------------------------------------------
-        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s) 
+        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s)
+        // NODE cases:
+        // node.wordIsComplete AND keys.size > 0 => get recipesParentMap AND go to next node
+        // node.isALeaf => get recipesParentMap
+        // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR === wordIsComplete )
         let nextNode, nextLetter;
         this.goToLastNode = function goToLastNode(node) {
-            // console.log(' LAST MATCHING NODE===', node);// node is : a MAP Object { keys: Map(3), parent: null, end: false, setEnd: setEnd(), isEnd: isEnd(), parentRecipeObjects: Map(1), getWord: getWord(node) }
             
             suggestions = [];
-            // console.log('GO TO LAST NODE SUGGESTIONS==', suggestions);
-            // NODE cases:
-            // node.wordIsComplete => get recipesParentMap AND go to next node
-            // node.isALeaf => get recipesParentMap
-            // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR  === wordIsComplete )
             if (node.keys.size >= 1 ) {
                 // console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
                 for (const [key, value] of node.keys) {
@@ -296,9 +293,7 @@ let currentTrie;
 function setCurrentTrie(trie) { currentTrie = trie; myStorage.setItem('recipesTrie', currentTrie); }
 function getCurrentTrie() { return currentTrie; }
 
-
 export function searchInTree(searchTerm) {
-
     let recipesTrie = getCurrentTrie();
     recipesTrie.searchElementInTrie(searchTerm);
 }
