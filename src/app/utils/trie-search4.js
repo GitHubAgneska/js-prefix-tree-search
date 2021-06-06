@@ -142,7 +142,8 @@ class Trie {
                     for (let letter of node.keys.keys()) { // node's letter child
                         search(node.keys.get(letter), str.concat(letter)); // check each node letter - and retrieve
                     }
-                    if (node.isEndOfAword()) allwordsOfTree.push(str); allwordsOfTree.push(node.parentRecipeObjects);
+                    if (node.isEndOfAword()) allwordsOfTree.push(str); 
+                    if ( node.parentRecipeObjects.size > 0 ) allwordsOfTree.push(node.parentRecipeObjects);
 
                 } else { str.length > 0 ? allwordsOfTree.push(str) : undefined; return; }
             };
