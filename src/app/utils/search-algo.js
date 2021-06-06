@@ -228,10 +228,3 @@ export function searchIntoCurrentList(searchTerm, currentCategoryName, currentIt
     });
     return currentSuggestions;
 }
-
-
-
-
-
-
-

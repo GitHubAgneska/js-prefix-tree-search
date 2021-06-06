@@ -7,7 +7,7 @@ import {CardTemplate} from '../components/bootstrap-card';
 import {HeaderBaseTemplate} from '../components/header';
 
 import {treatUnits, checkDoublonsBeforeAddingToArray, checkString} from '../utils/process-api-data';
-import {mapDataToTree, searchInTree, getTrieResults, getTrieSuggestions} from '../utils/trie-search4';
+import {mapDataToTree, searchInTree, getTrieResults, getTrieSuggestions, searchInPartialTree, getPartialTrieResults, getPartialTrieSuggestions} from '../utils/trie-search4';
 import {advancedSearch} from '../utils/search-algo';
 
 
@@ -91,7 +91,7 @@ export const RecipeModule = (function() {
         myStorage.setItem('allRecipes',JSON.stringify(recipesList));
 
         // ADD ALL DATA TO TREE 
-        mapDataToTree(recipes);
+        mapDataToTree(recipes, false);
 
         setResults(recipesList);
         initAdvancedSearchSection();
@@ -116,6 +116,9 @@ export const RecipeModule = (function() {
 
     let advancedSearchRecipes = [];
     let advancedSearchResults = [];
+    let setAdvancedSearchResults = function(results) { advancedSearchResults = results; };
+    let getAdvancedSearchResults = function() { return advancedSearchResults; };
+
     // STORE results in the module, until display method needs them
     let setResults = function(results) { storedResults = results; };
     let resetResults = function() { storedResults = []; };
@@ -146,30 +149,51 @@ export const RecipeModule = (function() {
 
     // RETRIEVE current search term and call search method --------
     function processCurrentMainSearch(letter) {
+
         // console.log('letter===', letter);
         currentSearchTerm += letter;
         resetAllFromPreviousSearch();
+        
+        // check if search in categories was done before main search
+        // in which case, the main search will operate on a trie of these existing results
+        let advRes = getAdvancedSearchResults() || [];
+        // console.log('ADVANCED SEARCH RESULTS===',advRes );
 
-        // launch search in trie if 3 chars
-        // repeat for every new char 
+        // launch search in trie if 3 chars 
         if ( currentSearchTerm.length >= 3 ) {
-
+            
             // BROWSER - PERF TESTS --------------------
             t0 = performance.now();
             // -----------------------------------------
+            
+            if ( advRes.length ) { // if some results from advanced search exist
+                
+                searchInPartialTree(currentSearchTerm);
+                let resultsFromPartialTrie = getPartialTrieResults(); // console.log('RESULTS FROM TRIE==', resultsFromTrie);
+                let suggestionsFromPartialTrie = getPartialTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
+                if ( suggestionsFromPartialTrie ) {
+                    processTrieSuggestions(suggestionsFromPartialTrie);
+                    if ( resultsFromPartialTrie ) { processTrieResults(resultsFromPartialTrie); }
+                }
+                else {  // current chars did not produce matches
+                    displayNoResults();
+                }
 
-            searchInTree(currentSearchTerm); // launch search in trie
-            
-            let resultsFromTrie = getTrieResults(); // console.log('RESULTS FROM TRIE==', resultsFromTrie);
-            let suggestionsFromTrie = getTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
-            
-            if ( suggestionsFromTrie ) {
-                processTrieSuggestions(suggestionsFromTrie);
-                if ( resultsFromTrie ) { processTrieResults(resultsFromTrie); }
+            } else {  // NO results from advanced search exist
+    
+                searchInTree(currentSearchTerm); // launch search in trie
+                let resultsFromTrie = getTrieResults(); // console.log('RESULTS FROM TRIE==', resultsFromTrie);
+                let suggestionsFromTrie = getTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
+                
+                if ( suggestionsFromTrie ) {
+                    processTrieSuggestions(suggestionsFromTrie);
+                    if ( resultsFromTrie ) { processTrieResults(resultsFromTrie); }
+                }
+                else {  // current chars did not produce matches
+                    displayNoResults();
+                }
             }
-            else {  // current chars did not produce matches
-                displayNoResults();
-            }
+            
         }
         setCurrentSearchterm(currentSearchTerm); // used for the case where input has been emptied, then same word searched again : should display suggestions again
         currentSearchTerm = '';
@@ -318,6 +342,11 @@ export const RecipeModule = (function() {
         displaySearchResults(allrecipes);
     }
 
+    // case where results from adv search exist, and user resets main search input field
+    function resetToAdvSearchResults() {
+
+    }
+
     // DISPLAY RECIPE LIST BY SEARCH TERM ----------------
     // when an array of results for the search term is ready to be displayed in UI
         // 'ready' means: a suggestion has been selected
@@ -463,22 +492,33 @@ export const RecipeModule = (function() {
             listELement.addEventListener('click', function(event){ selectItemInList(event, categoryName); }, false);
         });
     }
+
+    // HANDLING resetting of main search / adv search when depending on each other
+    let mainInputSearchIsActive = () => {
+        const mainInputSearch = document.querySelector('#main-search-input');
+        if ( mainInputSearch.value ) { return true; } else { return false; }
+    };
+    
+    let advSearchIsActive = () => {
+        const tagsWrapper = document.querySelector('#tagsWrapper');
+        if ( !tagsWrapper.hasChildNodes() ) { return true; } else { return false; }
+    };
+    
     // case where all tags have been removed from advanced search :
     // IF there was a main search => reset displaying main search results
     // ELSE => reset default view
-    let mainInputSearchActive;
     function handleAdvancedSearchReset() {
-        const mainInputSearch = document.querySelector('#main-search-input');
-        
-        if ( mainInputSearch.value ) { 
-            mainInputSearchActive = true;
-            processCurrentMainSearch(mainInputSearch.value);
-
-        } else { 
-            mainInputSearchActive = false;
-            resetDefaultView();
-        }
+        if ( mainInputSearchIsActive() )  {
+            let currentVal = document.querySelector('#main-search-input').value;
+            processCurrentMainSearch(currentVal);
+        } else {  resetDefaultView(); }
     }
+
+    function resetToAdvSearchResults() {
+        let res = getAdvancedSearchResults();
+        displaySearchResults(res);
+    }
+
 
 
     //  ======== !! TO REVIEW : REDEFINITION OF EXISTING METHOD in CollapsingMenu component : 
@@ -500,8 +540,11 @@ export const RecipeModule = (function() {
         //console.log('currentListofResults IS ====', advancedSearchRecipes);
         advancedSearch(advancedSearchRecipes, searchTerm, currentCategoryName);
         advancedSearchResults = RecipeModule.getResults();
+        // store advanced search results 
+        setAdvancedSearchResults(advancedSearchResults);
+        // ADD partial DATA TO A TREE 
+        mapDataToTree(advancedSearchResults, true);
         displaySearchResults(advancedSearchResults);
-
     }
 
     // method used to close a menu if another one is called to open
@@ -538,6 +581,7 @@ export const RecipeModule = (function() {
         displaySearchResults: displaySearchResults,
         processAdvancedSearch: processAdvancedSearch,
         handleAdvancedSearchReset:handleAdvancedSearchReset,
+        resetToAdvSearchResults:resetToAdvSearchResults,
         checkWhosOpen:checkWhosOpen,
         displayNoResults:displayNoResults,
         };

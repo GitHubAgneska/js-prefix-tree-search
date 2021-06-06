@@ -316,7 +316,7 @@ export class CollapsingMenu extends HTMLElement{
             return searchItemTag;
         }
 
-        let noTagsRemaining;
+        let noTagsRemaining;  // ---- TO REVIEW : similar method in module ( advSearchIsActive()  )
         // case where all tags have been removed : inform module :
         // IF there was a main search => reset displaying main search results
         // ELSE => reset default view
