@@ -56,7 +56,7 @@
                     "quantity": 2
                 },
                 {
-                    "ingredient": "Carotte",
+                    "ingredient": "Carottes",
                     "quantite": 1
                 },
                 {
@@ -1158,7 +1158,7 @@
             "servings": 4,
             "ingredients": [
                 {
-                    "ingredient": "Carotte",
+                    "ingredient": "Carottes",
                     "quantity": 2
                 },
                 {
@@ -1310,7 +1310,7 @@
             "servings": 2,
             "ingredients": [
                 {
-                    "ingredient": "Carotte",
+                    "ingredient": "Carottes",
                     "quantity": 6
                 },
                 {
