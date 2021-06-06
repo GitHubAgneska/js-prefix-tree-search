@@ -167,29 +167,27 @@ class Trie {
             if (node === undefined) { node = this.root; }
 
             let arrFromSearchterm = searchterm.split('');
-            for ( let i=0; i < arrFromSearchterm.length; i++ ) {
+            for ( let i = 0; i < arrFromSearchterm.length; i++ ) {
 
                 let currentLetterSearching = arrFromSearchterm[i];
                 
                 if (node.keys.has(currentLetterSearching)) {
                     node = node.keys.get(currentLetterSearching);
-                    currentlyFound += currentLetterSearching; console.log('CURRENTLY FOUND==', currentlyFound);
+                    currentlyFound += currentLetterSearching; // console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    if ( i >= 2 ) { // from 2 chars matching, 
+                    if ( i >= 2 ) { // from 3 chars matching
                         
-                        if (node.parentRecipeObjects.size > 0) { 
-                            console.log('THIS NODE PARENTRECIPESOBJ SIZE >=2 :',node.parentRecipeObjects);
+                        if (node.parentRecipeObjects.size > 0) { // if node contains recipes
+                            // console.log('THIS NODE PARENTRECIPESOBJ SIZE >=2 :',node.parentRecipeObjects);
                             completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         } 
-
-                        console.log('CURRENT completeWords==', completeWords);
+                        // console.log('CURRENT matches ==', completeWords);
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node;
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
                         this.setTrieSuggestions(suggestions);
-                        console.log('SUGGESTIONS WOULD BE ===', suggestions);
-                        
+                        // console.log('SUGGESTIONS WOULD BE ===', suggestions);
                     }
                 }
                 else { return;  }
@@ -198,7 +196,7 @@ class Trie {
         };
 
         // --------------------------------------------------
-        // Match in tree is found : go to branch end or endS ===>  retrieve recipe(s)
+        // Match in tree has been found : FROM LAST MATCHING NODE LETTER : go to all branch(es) endS to retrieve recipe(s)
         // NODE cases:
         // node.wordIsComplete AND keys.size > 0 => get recipesParentMap AND go to next node
         // node.isALeaf => get recipesParentMap
@@ -207,11 +205,17 @@ class Trie {
         this.goToLastNode = function goToLastNode(node) {
             
             suggestions = [];
-            if (node.keys.size >= 1 ) {
+            if ( node.keys.size >= 1 ) {
                 // console.log('THIS NODE IS A SUBTREE, PARENT recipes OBJ ===',node.parentRecipeObjects );
                 for (const [key, value] of node.keys) {
                     nextNode = value; nextLetter = key;
                     // console.log('NEXT LETTER: ', nextLetter, 'NEXT NODE: ',nextNode );
+                    if (nextNode.parentRecipeObjects.size > 0) {
+                        if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
+                            suggestions.push(node.parentRecipeObjects); 
+                        }
+                    }
+
                     goToLastNode(nextNode);
                 }
             }
@@ -284,7 +288,7 @@ export function mapDataToTree(recipes) {
         });
         // console.log('recipesTrie root=', recipesTrie.root);
     });
-    // console.log('TRIE PRINT===',recipesTrie.print());
+    console.log('TRIE PRINT===',recipesTrie.print());
     setCurrentTrie(recipesTrie);
     return recipesTrie;
 }

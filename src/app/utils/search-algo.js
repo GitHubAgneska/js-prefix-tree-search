@@ -1,4 +1,5 @@
 import {RecipeModule} from '../modules/recipes';
+import {checkString} from '../utils/process-api-data';
 
 let resultsList = []; // list of recipes matching search
 let suggestions = []; // list of suggested words matching search
@@ -138,9 +139,11 @@ function searchInIngredients(recipe, recipeIngredients, searchterm){
 // THEN: everytime user selects a new word in the remaining elements of catogories => a new search occurs on the current list of results
 
 export function advancedSearch(currentResults, searchTerm, currentCategoryName){
+
+    console.log('searchterm advanced===', searchTerm);
+    searchTerm = checkString(searchTerm);
     advancedSearchResults = []; // reset results
     // console.log('currentResults where to search===', currentResults);
-    // console.log('searchterm advanced===', searchTerm);
     // console.log('currentCategoryName===', currentCategoryName);
     if (currentCategoryName === 'appareils') { currentCategoryName = 'appliance'; }
     // in the array of current recults, 
@@ -154,8 +157,9 @@ export function advancedSearch(currentResults, searchTerm, currentCategoryName){
                     recipeIngredients.forEach( item => {  // for each ingredient object of ingredients array     
                         for (const [key, value] of Object.entries(item) ) { // for each key:value of ingredient object
                             if (key === 'ingredient') { console.log('key====', key );
-                                let ingredientName = value.toLowerCase();  // console.log('value====', ingredientName ); console.log('searchTerm====', searchTerm );   
-                                if ( ingredientName === searchTerm.toLowerCase()  || ingredientName.includes(searchTerm.toLowerCase())  ) {
+                                let ingredientName = checkString(value);  // console.log('value====', ingredientName ); console.log('searchTerm====', searchTerm );   
+                                
+                                if ( ingredientName === searchTerm  || ingredientName.includes(searchTerm)  ) {
                                     // prevent multiple addings when user continues typing word that has already been found - ideally, search should stop if matches are found?
                                     if ( !advancedSearchResults.includes(currentRecipe)){
                                         advancedSearchResults.push(currentRecipe); // store recipes in array: all recipes whose description contain serach term
@@ -169,8 +173,9 @@ export function advancedSearch(currentResults, searchTerm, currentCategoryName){
                 // SEARCH IN APPLIANCES = strings
                 if (key === 'appliance') {
                     let recipeAppliance = currentRecipe.appliance;
+                    recipeAppliance = checkString(recipeAppliance);  // console.log('value====', ingredientName ); console.log('searchTerm====', searchTerm );   
                     // console.log('appliance VALUE ==', recipeAppliance);
-                    if ( recipeAppliance.toLowerCase() === searchTerm.toLowerCase() || recipeAppliance.toLowerCase().includes(searchTerm.toLowerCase())) {
+                    if ( recipeAppliance === searchTerm || recipeAppliance.includes(searchTerm)) {
                         if ( !advancedSearchResults.includes(currentRecipe)){
                             advancedSearchResults.push(currentRecipe); // store recipes in array: all recipes whose description contain serach term
                         }
@@ -182,7 +187,8 @@ export function advancedSearch(currentResults, searchTerm, currentCategoryName){
                     let recipeUstensils = currentRecipe.ustensils;
                     // console.log('ustensil VALUE ==', recipeUstensils);
                     recipeUstensils.forEach( item => {  // for each ustensil string of ustensils array
-                        if ( item.toLowerCase() === searchTerm.toLowerCase() || item.toLowerCase().includes(searchTerm.toLowerCase())){
+                        item = checkString(item);
+                        if ( item === searchTerm || item.includes(searchTerm)){
                             if ( !advancedSearchResults.includes(currentRecipe)){
                                 advancedSearchResults.push(currentRecipe); // store recipes in array: all recipes whose description contain serach term
                             }

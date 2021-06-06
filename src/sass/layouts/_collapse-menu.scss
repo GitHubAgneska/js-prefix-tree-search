@@ -40,6 +40,7 @@
     #collapsing-ingredients * { background-color: #174ab8; }
     #collapsing-appareils * { background-color: #4bb9fe; }
     #collapsing-ustensils * { background-color: #e83e8c; }
+    [id^=collapsing-] li { list-style: none;}
 
     .card.card-body { width:100%;}
 
@@ -105,7 +106,7 @@
                 @include min-992px { width: 33%;}
             }
             menu-list-item-component li {
-                list-style: none;
+                list-style: none !important;
                 a {
                     font-size: 0.8em;
                 }

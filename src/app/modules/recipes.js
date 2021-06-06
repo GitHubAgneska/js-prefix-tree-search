@@ -130,16 +130,19 @@ export const RecipeModule = (function() {
     let storedSuggestedResults;
     let setSuggestedResults = function( suggestedResults) { storedSuggestedResults = suggestedResults; };
     let getSuggestedResults = function() { return storedSuggestedResults; };
-    let resetSuggestedResults = function() { return storedSuggestedResults = []; };
+    let resetSuggestedResults = function() { storedSuggestedResults = []; };
 
-    function resetAllFromPreviousSearch() {
-        resetSuggestions(); resetResults(); resetSuggestedResults();
-    }
+    // STORE current searchterm
+    // used for the case where input has been emptied, then same word searched again : should display suggestions again
+    let currentSearchTerm = '';
+    let setCurrentSearchterm = function(term) { currentSearchTerm = term; };
+    let getCurrentSearchterm = function() { return currentSearchTerm; };
+
+    function resetAllFromPreviousSearch() { resetSuggestions(); resetResults(); resetSuggestedResults();  }
     
     // BROWSER PERF TESTS --------------------------------------------------
     let t0, t1;
     // ---------------------------------------------------------------------
-    let currentSearchTerm = '';
 
     // RETRIEVE current search term and call search method --------
     function processCurrentMainSearch(letter) {
@@ -148,7 +151,7 @@ export const RecipeModule = (function() {
         resetAllFromPreviousSearch();
 
         // launch search in trie if 3 chars
-        // reset for every new char 
+        // repeat for every new char 
         if ( currentSearchTerm.length >= 3 ) {
 
             // BROWSER - PERF TESTS --------------------
@@ -168,6 +171,7 @@ export const RecipeModule = (function() {
                 displayNoResults();
             }
         }
+        setCurrentSearchterm(currentSearchTerm); // used for the case where input has been emptied, then same word searched again : should display suggestions again
         currentSearchTerm = '';
     }
 
@@ -186,7 +190,7 @@ export const RecipeModule = (function() {
             }
         });
         setResults(finalArrOfRecipes); // store results array
-        console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
+        if ( finalArrOfRecipes.length > 0 ) console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
         
         // BROWSER - PERF TESTS --------------------
         t1 = performance.now();
@@ -202,7 +206,7 @@ export const RecipeModule = (function() {
     let allValuesOfCurrentSuggestions = []; // and their linked recipes ( to remove doublons if needed )
     
     function processTrieSuggestions(suggestions) {
-        resetSuggestionsBlock(); // reset dom sugg block
+
         allKeysOfCurrentSuggestions = []; // reset arr of sugg words
 
         suggestions.forEach( map => { // each newly incoming sugg from trie
@@ -247,9 +251,9 @@ export const RecipeModule = (function() {
         } else { // word already is suggestions list
             /// console.log('WORD IS IN LIST ALREADY!');
             return;
-        } 
+        }
     }
-
+    
     function selectSuggestedWord(event, suggestedRecipes) {
         let word = event.target.innerText; // text inside <p> element where event occurs
         let inputField = document.querySelector('#main-search-input');
@@ -258,19 +262,30 @@ export const RecipeModule = (function() {
         // order display of list results for this word
         setResults(suggestedRecipes);
         displaySearchResults(suggestedRecipes);
-
+        
         // reset / close suggestion list
         resetSuggestionsBlock(); //UI
         resetSuggestions(); // reset suggestions data
+        
+        let searchIcon = document.querySelector('#search-addon');
+        let resetSearchIcon = document.querySelector('#reset-search-icon');
+        searchIcon.classList.remove('d-inline-block'); 
+        searchIcon.style.display = 'none';
+        resetSearchIcon.style.display = 'inline-block'; // visible
     }
 
     // case where user presses 'enter' in search bar 
-    // -> if searchterm is partial => will display all recipes linked to all suggested words
-    // 
-    function confirmCurrentChars(event) {
+    // -> if searchterm is partial => will display all recipes linked to all suggested words ------ TO REVIEW : will do the samr if word is complete..
+    function confirmCurrentChars() {
         let suggested = getSuggestedResults();
-        setResults(suggested);
-        displaySearchResults(suggested);
+        let results = getResults();
+        if ( !results ) { 
+            setResults(suggested);
+            displaySearchResults(suggested);
+        } else { 
+            setResults(results);
+            displaySearchResults(results);
+        }
         resetSuggestionsBlock(); //UI
         resetSuggestions(); // reset suggestions data
     }
@@ -392,21 +407,21 @@ export const RecipeModule = (function() {
             const recipeIngr = recipe.ingredients;
             recipeIngr.forEach( item => {
                 let currentIngredient = item.ingredient;
-                checkString(currentIngredient); // remove ponctuation, accents, make lowercase
+                currentIngredient = checkString(currentIngredient); // remove ponctuation, accents, make lowercase
                 treatUnits(item); // checkUnitType(item); ---- to review : exceptions !
                 checkDoublonsBeforeAddingToArray(ingredientsList,currentIngredient);
             });
 
             // retrieve category elements : all appliances
             let currentAppliance = recipe.appliance;
-            checkString(currentAppliance);
+            currentAppliance = checkString(currentAppliance);
             checkDoublonsBeforeAddingToArray(appliancesList,currentAppliance);
 
             // retrieve category elements : all ustensils
             const recipeUst = recipe.ustensils;
             recipeUst.forEach(ust => {
                 let currentUstensil = ust;
-                checkString(currentUstensil);
+                currentUstensil = checkString(currentUstensil);
                 checkDoublonsBeforeAddingToArray(ustensilsList,currentUstensil);
             });
         });
