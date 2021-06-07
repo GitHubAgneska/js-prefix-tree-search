@@ -343,9 +343,7 @@ export const RecipeModule = (function() {
     }
 
     // case where results from adv search exist, and user resets main search input field
-    function resetToAdvSearchResults() {
-
-    }
+ 
 
     // DISPLAY RECIPE LIST BY SEARCH TERM ----------------
     // when an array of results for the search term is ready to be displayed in UI
@@ -508,9 +506,11 @@ export const RecipeModule = (function() {
     // IF there was a main search => reset displaying main search results
     // ELSE => reset default view
     function handleAdvancedSearchReset() {
-        if ( mainInputSearchIsActive() )  {
+        if ( mainInputSearchIsActive() )  { 
             let currentVal = document.querySelector('#main-search-input').value;
-            processCurrentMainSearch(currentVal);
+            resetAllForNewSearch(); setAdvancedSearchResults([]);
+            let res = processCurrentMainSearch(currentVal);
+            displaySearchResults(res);
         } else {  resetDefaultView(); }
     }
 
