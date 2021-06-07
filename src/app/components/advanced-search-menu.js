@@ -223,7 +223,7 @@ export class CollapsingMenu extends HTMLElement{
             currentList.forEach( anchorTag => { currentItems.push(anchorTag.innerText); });
             // search match in current items of category
             currentSuggestions = searchIntoCurrentList(searchTerm, currentCategoryName, currentItems);
-            console.log('currentSuggestions==', currentSuggestions);
+            // console.log('currentSuggestions==', currentSuggestions);
 
             displayCurrentSuggestions(currentSuggestions);
         }

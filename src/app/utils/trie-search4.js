@@ -154,7 +154,7 @@ class Trie {
         // --------------------------------------------------
         // SEARCH term in trie
         this.searchElementInTrie = function(searchterm) {
-            console.log('we are looking for==,', searchterm);
+            console.log('MAIN SEARCH : WE ARE LOOKING FOR ====>,', searchterm);
             let node;
             let lastMatchingNode;
             let currentlyFound = '';
@@ -178,7 +178,7 @@ class Trie {
                         if (node.parentRecipeObjects.size > 0) { // if node contains recipes
                             completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         } 
-                        console.log('CURRENT matches ==', completeWords);
+                        if (completeWords.length) {console.log('CURRENT SUGGESTIONS ==', completeWords);}
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node;
@@ -199,32 +199,31 @@ class Trie {
         // node.isALeaf => get recipesParentMap
         // node.isASubtree => for each key of keys : go to end ( end is : node === isALeaf  OR === wordIsComplete )
         let nextNode, nextLetter;
-        let nodeNumber = 0;
+        // let nodeNumber = 0;
         this.goToLastNode = function goToLastNode(node) {
 
-            console.log('NOW AT NODE NUMBER:', nodeNumber);
+            // console.log('NOW AT NODE NUMBER:', nodeNumber);
             suggestions = [];
             
             if ( node.keys.size >= 1 ) {  // last matching node contains at least one other letter
                 for (const [key, value] of node.keys) {
                     nextNode = value; nextLetter = key; // console.log('NEXT LETTER: ', nextLetter, 'NEXT NODE: ',nextNode );
                     
-                    nodeNumber += 1;
+                    //nodeNumber += 1;
                     
-
                     if (nextNode.parentRecipeObjects.size > 0) { 
                         if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {
-                            suggestions.push(node.parentRecipeObjects); console.log('NOW PUSHING===>',node.parentRecipeObjects);
+                            suggestions.push(node.parentRecipeObjects); // console.log('NOW PUSHING===>',node.parentRecipeObjects);
                         }
                     }
                     goToLastNode(nextNode); // repeat until node.keys.size === 0 (end of branch)
                 }
             }
-            console.log('LAST IF ===> NOW AT NODE NUMBER:', nodeNumber);
+            // console.log('LAST IF ===> NOW AT NODE NUMBER:', nodeNumber);
 
             if (node.parentRecipeObjects.size > 0) {
                 if ( !suggestions.includes(node.parentRecipeObjects.has(node.parentRecipeObjects.key)) ) {  //----- WORKS ?
-                    suggestions.push(node.parentRecipeObjects); console.log('======== AND ===== NOW PUSHING===>',node.parentRecipeObjects);
+                    suggestions.push(node.parentRecipeObjects); // console.log('======== AND ===== NOW PUSHING===>',node.parentRecipeObjects);
                 }
             }
             // console.log('suggestions FOR THIS WORD==',suggestions );
@@ -292,10 +291,10 @@ export function mapDataToTree(recipes, partial) {
         // console.log('recipesTrie root=', recipesTrie.root);
     });
     if ( ! partial ) {  
-        setCurrentTrie(recipesTrie);
-    } else { setCurrentPartialTrie(recipesTrie); }
+        setCurrentTrie(recipesTrie); console.log('ALL RECIPES TRIE ===',recipesTrie.print());
+    } else { setCurrentPartialTrie(recipesTrie); console.log('PARTIAL TRIE ===',recipesTrie.print()); }
     
-    console.log('TRIE PRINT===',recipesTrie.print());
+    // console.log('TRIE PRINT===',recipesTrie.print());
     return recipesTrie;
 }
 
@@ -326,7 +325,7 @@ function getCurrentPartialTrie() { return currentPartialTrie; }
 
 export function searchInPartialTree(searchTerm) {
     let recipesPartialTrie = getCurrentPartialTrie();
-    console.log('PARTIAL TRIE==', recipesPartialTrie);
+    // console.log('PARTIAL TRIE==', recipesPartialTrie);
     recipesPartialTrie.searchElementInTrie(searchTerm);
 }
 

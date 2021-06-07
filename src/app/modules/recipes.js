@@ -217,8 +217,9 @@ export const RecipeModule = (function() {
         if ( finalArrOfRecipes.length > 0 ) console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
         
         // BROWSER - PERF TESTS --------------------
-        t1 = performance.now();
-        console.log('FIND SEARCH TERM took', t1 - t0, 'milliseconds');
+        t1 = performance.now(); let current = getCurrentSearchterm();
+        console.log('FIND SEARCH TERM', current ,'TOOK', t1 - t0, 'milliseconds');
+        if ( finalArrOfRecipes.length > 0 ) {console.log('FIND SEARCH TERM : ', current ,' AND RETRIEVE RESULTS TOOK', t1 - t0, 'milliseconds'); }
         // -----------------------------------------
     }
 

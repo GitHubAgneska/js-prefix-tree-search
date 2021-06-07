@@ -140,7 +140,7 @@ function searchInIngredients(recipe, recipeIngredients, searchterm){
 
 export function advancedSearch(currentResults, searchTerm, currentCategoryName){
 
-    console.log('searchterm advanced===', searchTerm);
+    console.log('AVDVANCED SEARCH: SEARCHTERM ====> ', searchTerm);
     searchTerm = checkString(searchTerm);
     advancedSearchResults = []; // reset results
     // console.log('currentResults where to search===', currentResults);
@@ -156,7 +156,7 @@ export function advancedSearch(currentResults, searchTerm, currentCategoryName){
                     let recipeIngredients = currentRecipe.ingredients;
                     recipeIngredients.forEach( item => {  // for each ingredient object of ingredients array     
                         for (const [key, value] of Object.entries(item) ) { // for each key:value of ingredient object
-                            if (key === 'ingredient') { console.log('key====', key );
+                            if (key === 'ingredient') { // console.log('key====', key );
                                 let ingredientName = checkString(value);  // console.log('value====', ingredientName ); console.log('searchTerm====', searchTerm );   
                                 
                                 if ( ingredientName === searchTerm  || ingredientName.includes(searchTerm)  ) {
