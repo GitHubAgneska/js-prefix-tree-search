@@ -158,6 +158,7 @@ class Trie {
         // --------------------------------------------------
         // SEARCH term in trie
         this.searchElementInTrie = function(searchterm) {
+            t0 = 0; t1 = 0; console.log('resetting t0 /t1');
             console.log('MAIN SEARCH : WE ARE LOOKING FOR ====>,', searchterm);
 
             // BROWSER - PERF TESTS --------------------
@@ -186,12 +187,15 @@ class Trie {
 
                         // BROWSER - PERF TESTS --------------------
                         t1 = performance.now();
-                        console.log('======= TRIE MATCH FOUND FOR ',currentlyFound,' TOOK', t1 - t0, 'milliseconds');
+                        if (t1 - t0 > 0 ) {
+                            console.log('======= TRIE MATCH FOUND FOR ',currentlyFound,' TOOK', t1 - t0, 'milliseconds');
+                        }
+                        //  ----------------------------------------
                         
                         if (node.parentRecipeObjects.size > 0) { // if node contains recipes
                             completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         } 
-                        if (completeWords.length) {console.log('CURRENT SUGGESTIONS ==', completeWords);}
+                        if (completeWords.length) {console.log('******** CURRENT SUGGESTIONS ==', completeWords);}
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node;
