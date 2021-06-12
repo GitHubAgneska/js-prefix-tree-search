@@ -305,7 +305,7 @@ export const RecipeModule = (function() {
     function confirmCurrentChars() {
         let suggested = getSuggestedResults();
         let results = getResults();
-        if ( !results ) { 
+        if ( results.length === 0 ) {
             setResults(suggested);
             displaySearchResults(suggested);
         } else { 
