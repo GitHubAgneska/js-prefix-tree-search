@@ -194,7 +194,6 @@ export const RecipeModule = (function() {
                     displayNoResults();
                 }
             }
-            
         }
         setCurrentSearchterm(currentSearchTerm); // used for the case where input has been emptied, then same word searched again : should display suggestions again
         currentSearchTerm = '';
@@ -214,8 +213,17 @@ export const RecipeModule = (function() {
                 });
             }
         });
+        // BROWSER - PERF TESTS --------------------
+        t1 = performance.now();
+        // -----------------------------------------
+
         setResults(finalArrOfRecipes); // store results array
-        if ( finalArrOfRecipes.length > 0 ) console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
+
+        if ( finalArrOfRecipes.length > 0 ) {
+            // console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
+            let currentSearchterm = getCurrentSearchterm();
+            console.log('******* FIND MATCHES FOR SEARCH TERM : ', currentSearchterm ,' AND RETRIEVE RESULTS TOOK', t1 - t0, 'milliseconds' ,'\n','----> RESULTS===',finalArrOfRecipes);
+        }
         
         // BROWSER - PERF TESTS --------------------
         // t1 = performance.now(); let current = getCurrentSearchterm();
