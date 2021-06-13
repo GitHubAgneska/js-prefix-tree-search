@@ -5,7 +5,7 @@ export class CardTemplate extends HTMLElement {
     constructor(recipe) {
         super();
 
-        this.setAttribute('class', 'col');
+        this.setAttribute('class', 'col col-xl-4');
         this.innerHTML = 
             `
             <div class="card recipe-card col col m-0 p-0">

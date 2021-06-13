@@ -52,6 +52,7 @@
         .searchTag {
             @include border-radius(5px);
             font-size: 0.8em;
+            @include min-992px {font-size: 1.2em; }
             background-color: $primary !important;
             color: $white;
             padding: 1%;
@@ -79,6 +80,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            @include min-992px { font-size: 1.2em !important;}
         }
         i.fas.fa-angle-down, i.fas.fa-angle-up {
             width: 20%;
@@ -89,7 +91,7 @@
         .searchInput {
             width: 80%;
             height: 100%;
-            padding: 5%;
+            padding-left: 5%;
             color:white;
         }
     }
@@ -109,6 +111,7 @@
                 list-style: none !important;
                 a {
                     font-size: 0.8em;
+                    @include min-992px { font-size:1.2em;}
                 }
             }
             li:hover a,

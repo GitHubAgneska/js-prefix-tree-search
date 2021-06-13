@@ -4,11 +4,13 @@
 card-component {
     margin: 1% 0;
     display: flex;
-
-    .col { @include min-992px { }}
+    max-width: 50%;
+    // *:not(.recipe-txt) { font-family: Lato;}
 
     .card.recipe-card {
-        width: 400px !important; height: 350px !important;
+        width: 400px !important; 
+        height: 350px !important;
+        @include min-992px { height:450px !important;}
         img { height:45%; width:100%;  background:#C7BEBE;}
         
         .card-body {
@@ -19,8 +21,10 @@ card-component {
                 padding: 4% 0;
                 h5 {
                     // &:nth-child(1) { font-weight:700;}
-                    @include max-600px {font-size: 0.8em;font-weight : 500;}
-                    @include min-600px { font-size: 1em;font-weight : 500;}
+                    font-weight : 500;
+                    @include max-600px {font-size: 0.8em;}
+                    @include min-600px { font-size: 1em;}
+                    @include min-992px { font-size: 1.2em;}
                 }
                 .card-time {
                     height: 100%;
@@ -36,7 +40,10 @@ card-component {
         }
         .recipe-description {
             height: 60%;
-            .ingredients-list li, p  { font-size: 0.7em;}
+            .ingredients-list li, p  { 
+                font-size: 0.7em;
+                @include min-992px { font-size: 1em;}
+            } 
             .recipe-txt { 
                 height: 100%;
                 p {
