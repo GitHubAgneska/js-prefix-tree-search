@@ -126,14 +126,14 @@ export const RecipeModule = (function() {
 
     // STORE suggestions in the module, until display method needs them
     let setSuggestions = function(suggestions) { storedSuggestions = suggestions; };
-    let resetSuggestions = function () { storedSuggestions = []; };
+    let resetSuggestions = function () { return storedSuggestions = []; };
     let getSuggestions = function() { return storedSuggestions; };
 
     // STORE results corresponding to all suggested words for a searchterm
     let storedSuggestedResults;
     let setSuggestedResults = function( suggestedResults) { storedSuggestedResults = suggestedResults; };
     let getSuggestedResults = function() { return storedSuggestedResults; };
-    let resetSuggestedResults = function() { storedSuggestedResults = []; };
+    let resetSuggestedResults = function() { return storedSuggestedResults = []; };
 
     // STORE current searchterm
     // used for the case where input has been emptied, then same word searched again : should display suggestions again
@@ -150,14 +150,13 @@ export const RecipeModule = (function() {
     let suggestionsFromTrie;
     // RETRIEVE current search term and call search method --------
     function processCurrentMainSearch(searchTerm) {
-        t0 = 0; t1 = 0; console.log('resetting t0 /t1');
+        // t0 = 0; t1 = 0; console.log('resetting t0 /t1');
         console.log('searchTerm===', searchTerm);
-        resetAllFromPreviousSearch(); resetSuggestionsBlock();
         
+        resetAllFromPreviousSearch(); resetSuggestionsBlock();removeNoResults();
+        suggestionsFromTrie =[];
         currentSearchTerm += searchTerm;
-//        resetAllFromPreviousSearch();
-        //suggestionsFromTrie = [];
-        
+
         // check if search in categories was done before main search
         // in which case, the main search will operate on a trie of these existing results
         let advRes = getAdvancedSearchResults() || [];
@@ -168,6 +167,14 @@ export const RecipeModule = (function() {
         let resultsFromTrie = getTrieResults(); console.log('RESULTS FROM TRIE==', resultsFromTrie);
         suggestionsFromTrie = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
         processTrieSuggestions(suggestionsFromTrie);
+
+        if ( suggestionsFromTrie.length > 0 ) {
+            processTrieSuggestions(suggestionsFromTrie);
+            if ( resultsFromTrie.length > 0 ) { processTrieResults(resultsFromTrie); }
+        }
+        else {  // current chars did not produce matches
+            displayNoResults();
+        }
         
     
 
@@ -251,7 +258,7 @@ export const RecipeModule = (function() {
     let allValuesOfCurrentSuggestions = []; // and their linked recipes ( to remove doublons if needed )
     
     function processTrieSuggestions(suggestions) {
-        console.log('PROCESSING NEW SUGGESTIONS===', suggestions);
+        // console.log('PROCESSING NEW SUGGESTIONS===', suggestions);
         
         resetSuggestionsBlock();
 
@@ -283,12 +290,12 @@ export const RecipeModule = (function() {
     
     function addSuggestionInList(suggestion, suggestedRecipes){
         
-        console.log('SUGGESTION IS==', suggestion);
-        console.log('CURRENT LIST===',currentListOfWords );
+        // console.log('SUGGESTION IS==', suggestion);
+        // console.log('CURRENT LIST===',currentListOfWords );
 
         if ( !currentListOfWords.includes(suggestion) ) {
 
-            currentListOfWords.push(suggestion); console.log('CURRENT LIST OF WORDS===',currentListOfWords);
+            currentListOfWords.push(suggestion); // console.log('CURRENT LIST OF WORDS===',currentListOfWords);
 
             let newSuggestion = document.createElement('p');
             let newSuggestedWord = document.createTextNode(suggestion);
@@ -410,7 +417,7 @@ export const RecipeModule = (function() {
     }
     function removeNoResults() {
         let noResultsBlock = document.querySelector('#no-results-message');
-        if (root.contains(noResultsBlock)) { root.removeChild(noResultsBlock);}
+        if (root.contains(noResultsBlock)) { root.removeChild(noResultsBlock); }
     }
 
     function resetAllForNewSearch() {

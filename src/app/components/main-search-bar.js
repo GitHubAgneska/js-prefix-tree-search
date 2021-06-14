@@ -43,7 +43,6 @@ export class SearchBar extends HTMLElement {
         });
 
         function resetInput(event) {
-
             mainInputSearch.value = event.target;
             return mainInputSearch.value = '';
         }
@@ -68,12 +67,11 @@ export class SearchBar extends HTMLElement {
             handleManualSearchReset();
         }, false);
 
-        // CASE WHERE USER USES BACKSPACE KEY to delete chars : prevent search to start again
+        // CASE WHERE USER USES BACKSPACE KEY to delete chars
         mainInputSearch.addEventListener('keydown', function(event){
             currentSearchTerm = event.target.value;
             if ( event.key === 'Backspace') {
                 handleManualSearchReset();
-                //return; // prevent more search ----- works ?
             }
             if ( event.key === 'Enter' ) { // allow manual searchterm confirmation
                 RecipeModule.confirmCurrentChars();
@@ -83,7 +81,7 @@ export class SearchBar extends HTMLElement {
             }
         }, false);
 
-;
+
         // case where user deletes chars until field = empty or deletes the whole searchterm
         // when input has been touched + searchterm is empty + focus still on input
         function handleManualSearchReset(){

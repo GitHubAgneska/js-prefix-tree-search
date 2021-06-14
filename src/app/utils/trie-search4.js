@@ -160,7 +160,7 @@ class Trie {
         this.searchElementInTrie = function(searchterm) {
             // t0 = 0; t1 = 0; console.log('resetting t0 /t1');
             console.log('MAIN SEARCH : WE ARE LOOKING FOR ====>,', searchterm);
-            this.resetTrieSuggestions();
+            this.resetTrieSuggestions();this.resetTrieResults();
 
             // BROWSER - PERF TESTS --------------------
             // t0 = performance.now();
@@ -175,22 +175,20 @@ class Trie {
 
             if (node === undefined) { node = this.root; }
 
-            let arrFromSearchterm = searchterm.split('');
+            let arrFromSearchterm = searchterm.split(''); console.log('arrFromSearchterm:',arrFromSearchterm);
             for ( let i = 0; i < arrFromSearchterm.length; i++ ) {
 
                 let currentLetterSearching = arrFromSearchterm[i];
                 
                 if (node.keys.has(currentLetterSearching)) {
                     node = node.keys.get(currentLetterSearching);
-                    currentlyFound += currentLetterSearching; // console.log('CURRENTLY FOUND==', currentlyFound);
+                    currentlyFound += currentLetterSearching;  console.log('CURRENTLY FOUND==', currentlyFound);
 
                     //if ( i >= 2 ) { // from 3 chars matching
 
                         // BROWSER - PERF TESTS --------------------
-                        t1 = performance.now();
-                        if (t1 - t0 > 0 ) {
-                            // console.log('======= TRIE MATCH FOUND FOR ',currentlyFound,' TOOK', t1 - t0, 'milliseconds');
-                        }
+                        // t1 = performance.now();
+                        // if (t1 - t0 > 0 ) { console.log('======= TRIE MATCH FOUND FOR ',currentlyFound,' TOOK', t1 - t0, 'milliseconds'); }
                         //  ----------------------------------------
                         
                         if (node.isEndOfAword() && node.parentRecipeObjects.size > 0) { // if node contains recipes
@@ -205,10 +203,10 @@ class Trie {
                         // console.log('SUGGESTIONS WOULD BE ===', suggestions);
                     // }
 
-                }
-                else { return;  }
+                } else { console.log('NO MATCH'); this.setTrieResults([]); this.setTrieSuggestions([]); return;  }
             }
             searchterm = '';
+            arrFromSearchterm = [];
         };
 
         // --------------------------------------------------
