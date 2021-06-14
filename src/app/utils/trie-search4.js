@@ -57,11 +57,11 @@ class Trie {
         // --------------------------------------------------
         // STORE results of search
         this.setTrieResults = function(results) { this.results = results; };
-        this.resetTrieResults = function () { return this.results = []; };
+        this.resetTrieResults = function () { this.results = []; };
         this.getTrieResults = function () { return this.results; };
 
         this.setTrieSuggestions = function(suggestions) { this.suggestions = suggestions; };
-        this.resetTrieSuggestions = function () { return this.suggestions = []; };
+        this.resetTrieSuggestions = function () { this.suggestions = []; };
         this.getTrieSuggestions = function () { return this.suggestions; };
         
         // --------------------------------------------------
@@ -154,12 +154,13 @@ class Trie {
         // BROWSER PERF TESTS --------------------------------------------------
         let t0, t1;
         // ---------------------------------------------------------------------
-
+        
         // --------------------------------------------------
         // SEARCH term in trie
         this.searchElementInTrie = function(searchterm) {
             // t0 = 0; t1 = 0; console.log('resetting t0 /t1');
             console.log('MAIN SEARCH : WE ARE LOOKING FOR ====>,', searchterm);
+            this.resetTrieSuggestions();
 
             // BROWSER - PERF TESTS --------------------
             // t0 = performance.now();
@@ -169,7 +170,7 @@ class Trie {
             let lastMatchingNode;
             let currentlyFound = '';
             let completeWords = [];
-            let suggestions = [];
+            suggestions = [];
             completeWords = [];
 
             if (node === undefined) { node = this.root; }
@@ -183,7 +184,7 @@ class Trie {
                     node = node.keys.get(currentLetterSearching);
                     currentlyFound += currentLetterSearching; // console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    if ( i >= 2 ) { // from 3 chars matching
+                    //if ( i >= 2 ) { // from 3 chars matching
 
                         // BROWSER - PERF TESTS --------------------
                         t1 = performance.now();
@@ -192,17 +193,18 @@ class Trie {
                         }
                         //  ----------------------------------------
                         
-                        if (node.parentRecipeObjects.size > 0) { // if node contains recipes
+                        if (node.isEndOfAword() && node.parentRecipeObjects.size > 0) { // if node contains recipes
                             completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
                         } 
-                        // if (completeWords.length) {console.log('******** CURRENT SUGGESTIONS ==', completeWords);}
+                        if (completeWords.length) {console.log('******** CURRENT COMPLETE WORDS ==', completeWords);}
                         this.setTrieResults(completeWords);
 
                         lastMatchingNode = node;
                         suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
                         this.setTrieSuggestions(suggestions);
                         // console.log('SUGGESTIONS WOULD BE ===', suggestions);
-                    }
+                    // }
+
                 }
                 else { return;  }
             }

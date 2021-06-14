@@ -61,7 +61,7 @@ export class SearchBar extends HTMLElement {
         let inputFieldTouched = false;
 
         mainInputSearch.addEventListener('input', function(event){
-            currentSearchTerm = event.target.value; // ( currentSearchTerm is actually a letter .. )
+            currentSearchTerm = event.target.value;
             if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-' {
             RecipeModule.processCurrentMainSearch(currentSearchTerm);
             inputFieldTouched = true;
@@ -73,7 +73,7 @@ export class SearchBar extends HTMLElement {
             currentSearchTerm = event.target.value;
             if ( event.key === 'Backspace') {
                 handleManualSearchReset();
-                return; // prevent more search ----- works ?
+                //return; // prevent more search ----- works ?
             }
             if ( event.key === 'Enter' ) { // allow manual searchterm confirmation
                 RecipeModule.confirmCurrentChars();

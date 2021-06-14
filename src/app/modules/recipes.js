@@ -147,21 +147,32 @@ export const RecipeModule = (function() {
     let t0, t1;
     // ---------------------------------------------------------------------
 
+    let suggestionsFromTrie;
     // RETRIEVE current search term and call search method --------
-    function processCurrentMainSearch(letter) {
+    function processCurrentMainSearch(searchTerm) {
         t0 = 0; t1 = 0; console.log('resetting t0 /t1');
-
-        // console.log('letter===', letter);
-        currentSearchTerm += letter;
+        console.log('searchTerm===', searchTerm);
         resetAllFromPreviousSearch();
+        
+        currentSearchTerm += searchTerm;
+//        resetAllFromPreviousSearch();
+        //suggestionsFromTrie = [];
         
         // check if search in categories was done before main search
         // in which case, the main search will operate on a trie of these existing results
         let advRes = getAdvancedSearchResults() || [];
         // console.log('ADVANCED SEARCH RESULTS===',advRes );
 
+        searchInTree(currentSearchTerm); // launch search in trie
+        
+        let resultsFromTrie = getTrieResults(); console.log('RESULTS FROM TRIE==', resultsFromTrie);
+        suggestionsFromTrie = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
+        processTrieSuggestions(suggestionsFromTrie);
+        
+    
+
         // launch search in trie if 3 chars 
-        if ( currentSearchTerm.length >= 3 ) {
+        /* if ( currentSearchTerm.length >= 3 ) {
             
             // BROWSER - PERF TESTS --------------------
             t0 = performance.now();
@@ -194,7 +205,7 @@ export const RecipeModule = (function() {
                     displayNoResults();
                 }
             }
-        }
+        } */
         setCurrentSearchterm(currentSearchTerm); // used for the case where input has been emptied, then same word searched again : should display suggestions again
         currentSearchTerm = '';
     }
@@ -240,12 +251,17 @@ export const RecipeModule = (function() {
     let allValuesOfCurrentSuggestions = []; // and their linked recipes ( to remove doublons if needed )
     
     function processTrieSuggestions(suggestions) {
+        console.log('PROCESSING NEW SUGGESTIONS===', suggestions);
+        
+        resetSuggestionsBlock();
 
         allKeysOfCurrentSuggestions = []; // reset arr of sugg words
 
         suggestions.forEach( map => { // each newly incoming sugg from trie
-            for ( let [key, value] of map.entries() ){ 
+            for ( let [key, value] of map.entries() ){
+                
                 addSuggestionInList(key, value); // retrieve word + matching recipe(s)
+                
                 if ( !allKeysOfCurrentSuggestions.includes(key)) { allKeysOfCurrentSuggestions.push(key); }  // if not there yet, add sugg word in UI
                 value.forEach(val => {  // ( value is an ARRAY of recipes objects )
                     // store all recipes for all suggested words : if user confirm word as is, all these recipes will be results
@@ -267,7 +283,10 @@ export const RecipeModule = (function() {
     
     function addSuggestionInList(suggestion, suggestedRecipes){
         
+        console.log('SUGGESTION IS==', suggestion);
+
         if ( !currentListOfWords.includes(suggestion) ) {
+            console.log('CURRENT LIST===',currentListOfWords );
 
             currentListOfWords.push(suggestion); // console.log('CURRENT LIST OF WORDS===',currentListOfWords);
 
@@ -281,11 +300,14 @@ export const RecipeModule = (function() {
             // handle selection of suggested word (both click and keydown)
             newSuggestion.addEventListener('click', function(event){ selectSuggestedWord(event,suggestedRecipes ); }, false);
             newSuggestion.addEventListener('keydown', function(event){ selectSuggestedWord(event, suggestedRecipes); }, false);
+
+            currentListOfWords.pop(suggestion);
         
         } else { // word already is suggestions list
             /// console.log('WORD IS IN LIST ALREADY!');
             return;
         }
+        
     }
     
     function selectSuggestedWord(event, suggestedRecipes) {
