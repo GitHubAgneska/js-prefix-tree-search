@@ -152,7 +152,7 @@ export const RecipeModule = (function() {
     function processCurrentMainSearch(searchTerm) {
         t0 = 0; t1 = 0; console.log('resetting t0 /t1');
         console.log('searchTerm===', searchTerm);
-        resetAllFromPreviousSearch();
+        resetAllFromPreviousSearch(); resetSuggestionsBlock();
         
         currentSearchTerm += searchTerm;
 //        resetAllFromPreviousSearch();
@@ -284,11 +284,11 @@ export const RecipeModule = (function() {
     function addSuggestionInList(suggestion, suggestedRecipes){
         
         console.log('SUGGESTION IS==', suggestion);
+        console.log('CURRENT LIST===',currentListOfWords );
 
         if ( !currentListOfWords.includes(suggestion) ) {
-            console.log('CURRENT LIST===',currentListOfWords );
 
-            currentListOfWords.push(suggestion); // console.log('CURRENT LIST OF WORDS===',currentListOfWords);
+            currentListOfWords.push(suggestion); console.log('CURRENT LIST OF WORDS===',currentListOfWords);
 
             let newSuggestion = document.createElement('p');
             let newSuggestedWord = document.createTextNode(suggestion);
@@ -301,13 +301,11 @@ export const RecipeModule = (function() {
             newSuggestion.addEventListener('click', function(event){ selectSuggestedWord(event,suggestedRecipes ); }, false);
             newSuggestion.addEventListener('keydown', function(event){ selectSuggestedWord(event, suggestedRecipes); }, false);
 
-            currentListOfWords.pop(suggestion);
-        
+            
         } else { // word already is suggestions list
             /// console.log('WORD IS IN LIST ALREADY!');
             return;
         }
-        
     }
     
     function selectSuggestedWord(event, suggestedRecipes) {
@@ -350,7 +348,7 @@ export const RecipeModule = (function() {
     function resetSuggestionsBlock(parent){
         parent = document.querySelector('#main-suggestions');
         while (parent.firstChild) { parent.removeChild(parent.firstChild); }
-        resetSuggestions();
+        resetSuggestions();currentListOfWords = [];
         return parent;
     }
 
