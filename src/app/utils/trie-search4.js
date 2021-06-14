@@ -175,33 +175,30 @@ class Trie {
 
             if (node === undefined) { node = this.root; }
 
-            let arrFromSearchterm = searchterm.split(''); console.log('arrFromSearchterm:',arrFromSearchterm);
+            let arrFromSearchterm = searchterm.split('');// console.log('arrFromSearchterm:',arrFromSearchterm);
             for ( let i = 0; i < arrFromSearchterm.length; i++ ) {
 
                 let currentLetterSearching = arrFromSearchterm[i];
                 
                 if (node.keys.has(currentLetterSearching)) {
                     node = node.keys.get(currentLetterSearching);
-                    currentlyFound += currentLetterSearching;  console.log('CURRENTLY FOUND==', currentlyFound);
+                    currentlyFound += currentLetterSearching;// console.log('CURRENTLY FOUND==', currentlyFound);
 
-                    //if ( i >= 2 ) { // from 3 chars matching
-
-                        // BROWSER - PERF TESTS --------------------
-                        // t1 = performance.now();
-                        // if (t1 - t0 > 0 ) { console.log('======= TRIE MATCH FOUND FOR ',currentlyFound,' TOOK', t1 - t0, 'milliseconds'); }
-                        //  ----------------------------------------
+                // BROWSER - PERF TESTS --------------------
+                t1 = performance.now();
+                if (t1 - t0 > 0 ) { console.log('======= TRIE MATCH FOUND FOR ',currentlyFound,' TOOK', t1 - t0, 'milliseconds'); }
+                //  ----------------------------------------
                         
-                        if (node.isEndOfAword() && node.parentRecipeObjects.size > 0) { // if node contains recipes
-                            completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
-                        } 
-                        if (completeWords.length) {console.log('******** CURRENT COMPLETE WORDS ==', completeWords);}
-                        this.setTrieResults(completeWords);
+                if (node.isEndOfAword() && node.parentRecipeObjects.size > 0) { // if node contains recipes
+                    completeWords.push(node.parentRecipeObjects);  // only COMPLETE WORDS : 'coco' => won't get 'cocotte'
+                } 
+                // if (completeWords.length) { console.log('******** CURRENT COMPLETE WORDS ==', completeWords);}
+                this.setTrieResults(completeWords);
+                completeWords = [];
 
-                        lastMatchingNode = node;
-                        suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
-                        this.setTrieSuggestions(suggestions);
-                        // console.log('SUGGESTIONS WOULD BE ===', suggestions);
-                    // }
+                lastMatchingNode = node;
+                suggestions = this.goToLastNode(lastMatchingNode); // inspect different endings: 'coco' => should get 'cocotte'
+                this.setTrieSuggestions(suggestions); // console.log('SUGGESTIONS WOULD BE ===', suggestions);
 
                 } else { console.log('NO MATCH'); this.setTrieResults([]); this.setTrieSuggestions([]); return;  }
             }

@@ -150,8 +150,8 @@ export const RecipeModule = (function() {
     let suggestionsFromTrie;
     // RETRIEVE current search term and call search method --------
     function processCurrentMainSearch(searchTerm) {
-        // t0 = 0; t1 = 0; console.log('resetting t0 /t1');
-        console.log('searchTerm===', searchTerm);
+        t0 = 0; t1 = 0; console.log('resetting t0 /t1');
+        // console.log('searchTerm===', searchTerm);
         
         resetAllFromPreviousSearch(); resetSuggestionsBlock();removeNoResults();
         suggestionsFromTrie =[];
@@ -159,27 +159,10 @@ export const RecipeModule = (function() {
 
         // check if search in categories was done before main search
         // in which case, the main search will operate on a trie of these existing results
-        let advRes = getAdvancedSearchResults() || [];
-        // console.log('ADVANCED SEARCH RESULTS===',advRes );
-
-        searchInTree(currentSearchTerm); // launch search in trie
-        
-        let resultsFromTrie = getTrieResults(); console.log('RESULTS FROM TRIE==', resultsFromTrie);
-        suggestionsFromTrie = getTrieSuggestions(); console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
-        processTrieSuggestions(suggestionsFromTrie);
-
-        if ( suggestionsFromTrie.length > 0 ) {
-            processTrieSuggestions(suggestionsFromTrie);
-            if ( resultsFromTrie.length > 0 ) { processTrieResults(resultsFromTrie); }
-        }
-        else {  // current chars did not produce matches
-            displayNoResults();
-        }
-        
-    
+        let advRes = getAdvancedSearchResults() || []; // console.log('ADVANCED SEARCH RESULTS===',advRes );
 
         // launch search in trie if 3 chars 
-        /* if ( currentSearchTerm.length >= 3 ) {
+        if ( currentSearchTerm.length >= 3 ) {
             
             // BROWSER - PERF TESTS --------------------
             t0 = performance.now();
@@ -201,18 +184,20 @@ export const RecipeModule = (function() {
             } else {  // NO results from advanced search exist
     
                 searchInTree(currentSearchTerm); // launch search in trie
+        
                 let resultsFromTrie = getTrieResults(); // console.log('RESULTS FROM TRIE==', resultsFromTrie);
-                let suggestionsFromTrie = getTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
-                
-                if ( suggestionsFromTrie ) {
+                suggestionsFromTrie = getTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
+                processTrieSuggestions(suggestionsFromTrie);
+
+                if ( suggestionsFromTrie.length > 0 ) {
                     processTrieSuggestions(suggestionsFromTrie);
-                    if ( resultsFromTrie ) { processTrieResults(resultsFromTrie); }
+                    if ( resultsFromTrie.length > 0 ) { processTrieResults(resultsFromTrie); }
                 }
                 else {  // current chars did not produce matches
                     displayNoResults();
                 }
             }
-        } */
+        }
         setCurrentSearchterm(currentSearchTerm); // used for the case where input has been emptied, then same word searched again : should display suggestions again
         currentSearchTerm = '';
     }
@@ -292,7 +277,6 @@ export const RecipeModule = (function() {
         
         // console.log('SUGGESTION IS==', suggestion);
         // console.log('CURRENT LIST===',currentListOfWords );
-
         if ( !currentListOfWords.includes(suggestion) ) {
 
             currentListOfWords.push(suggestion); // console.log('CURRENT LIST OF WORDS===',currentListOfWords);
@@ -308,7 +292,6 @@ export const RecipeModule = (function() {
             newSuggestion.addEventListener('click', function(event){ selectSuggestedWord(event,suggestedRecipes ); }, false);
             newSuggestion.addEventListener('keydown', function(event){ selectSuggestedWord(event, suggestedRecipes); }, false);
 
-            
         } else { // word already is suggestions list
             /// console.log('WORD IS IN LIST ALREADY!');
             return;
