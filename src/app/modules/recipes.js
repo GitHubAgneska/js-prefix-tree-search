@@ -155,7 +155,7 @@ export const RecipeModule = (function() {
         
         resetAllFromPreviousSearch(); resetSuggestionsBlock();removeNoResults();
         suggestionsFromTrie =[];
-        currentSearchTerm += searchTerm;
+        currentSearchTerm += searchTerm.toLowerCase();;
 
         // check if search in categories was done before main search
         // in which case, the main search will operate on a trie of these existing results
