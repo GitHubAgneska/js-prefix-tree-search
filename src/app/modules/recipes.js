@@ -579,7 +579,7 @@ export const RecipeModule = (function() {
     // ISSUE = init categories lists items DEFAULT = done in component, BUT UPDATING categories lists items = done here in MODULE  ========= TO REVIEW 
     // handle select item in list : send it into input field
     let currentTags = document.querySelectorAll('.searchTag');
-    let caretUp = document.querySelector('#caret-up');
+    let caretUp = document.querySelectorAll('#caret-up');
 
     function selectItemInList(event, categoryName) { 
         // console.log('categoryName===', categoryName);
@@ -600,7 +600,8 @@ export const RecipeModule = (function() {
         tagsWrapper.appendChild(searchItemTag);
         setTagsList(word); // include current searchterm in tags list
         // close menu
-        if (caretUp) caretUp.click();
+        let caretUps = document.querySelectorAll('#caret-up');
+        if (caretUps) {caretUps.forEach(c => c.click()); }
     }
     const parentAdvancedSearchWrapper = document.querySelector('.adv-search-wrapper');
     function initTagsWrapper() {
@@ -637,10 +638,8 @@ export const RecipeModule = (function() {
     }
     
 
-
-
-
     function processAdvancedSearch(searchTerm, currentCategoryName) {
+        removeResultsBlock();
         // here, results come either from a sorted list (current results) or default api recipes list
         advancedSearchRecipes = RecipeModule.getResults();
         //console.log('currentListofResults IS ====', advancedSearchRecipes);
@@ -651,6 +650,8 @@ export const RecipeModule = (function() {
         // ADD partial DATA TO A TREE 
         mapDataToTree(advancedSearchResults, true);
         displaySearchResults(advancedSearchResults);
+
+        // update results count
         if ( !resultsCountVisible) { displayResultsCount(); }
 
     }

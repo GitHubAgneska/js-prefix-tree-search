@@ -51,15 +51,14 @@
         @include max-768px { justify-content: flex-start;}
         .searchTag {
             @include border-radius(5px);
-            font-size: 0.8em;
+            @include max-600px {font-size:1em;}
             @include min-992px {font-size: 1.2em; }
             background-color: $primary !important;
             color: $white;
-            padding: 1%;
+            padding: 2%;
             margin: 1%;
             @include centered;
             i.fa.fa-times-circle-o { padding-left: 5px; }
-            @include max-600px {font-size:0.7em;}
         }
     }
 

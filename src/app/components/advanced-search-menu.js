@@ -173,8 +173,9 @@ export class CollapsingMenu extends HTMLElement{
                     let tagsWrapper = document.querySelector('#tagsWrapper');
                     tagsWrapper.appendChild(searchItemTag);
                     setTagsList(word); // include current searchterm in tags list
-                    // close menu
-                    caretUp.click();
+                    // close menu (any)
+                    let caretUps = document.querySelectorAll('#caret-up');
+                    if (caretUps) {caretUps.forEach(c => c.click()); }
                 }
         }
 
