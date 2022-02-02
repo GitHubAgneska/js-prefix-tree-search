@@ -30,6 +30,8 @@ export const RecipeModule = (function() {
     let ustensilsList = [];
     let arrayOfCategoryElements = []; // to store the 3 previous lists
 
+    let resultsCountVisible = false;
+
     // SET-UP LOCAL STORAGE for all recipes array
     const myStorage = window.localStorage;
 
@@ -123,6 +125,7 @@ export const RecipeModule = (function() {
     let setResults = function(results) { storedResults = results; };
     let resetResults = function() { storedResults = []; };
     let getResults = function() { return storedResults; };
+    let getResultsCount = function() { return storedResults.length; };
 
     // STORE suggestions in the module, until display method needs them
     let setSuggestions = function(suggestions) { storedSuggestions = suggestions; };
@@ -144,13 +147,13 @@ export const RecipeModule = (function() {
     function resetAllFromPreviousSearch() { resetSuggestions(); resetResults(); resetSuggestedResults();  }
     
     // BROWSER PERF TESTS --------------------------------------------------
-    let t0, t1;
+    // let t0, t1;
     // ---------------------------------------------------------------------
 
     let suggestionsFromTrie;
     // RETRIEVE current search term and call search method --------
     function processCurrentMainSearch(searchTerm) {
-        t0 = 0; t1 = 0; console.log('resetting t0 /t1');
+        // t0 = 0; t1 = 0; console.log('resetting t0 /t1');
         // console.log('searchTerm===', searchTerm);
         
         resetAllFromPreviousSearch(); resetSuggestionsBlock();removeNoResults();
@@ -165,7 +168,7 @@ export const RecipeModule = (function() {
         if ( currentSearchTerm.length >= 3 ) {
             
             // BROWSER - PERF TESTS --------------------
-            t0 = performance.now();
+            // t0 = performance.now();
             // -----------------------------------------
             
             if ( advRes.length ) { // if some results from advanced search exist
@@ -175,7 +178,10 @@ export const RecipeModule = (function() {
                 let suggestionsFromPartialTrie = getPartialTrieSuggestions(); // console.log('SUGGESTIONS FROM TRIE==', suggestionsFromTrie);
                 if ( suggestionsFromPartialTrie ) {
                     processTrieSuggestions(suggestionsFromPartialTrie);
-                    if ( resultsFromPartialTrie ) { processTrieResults(resultsFromPartialTrie); }
+                    if ( resultsFromPartialTrie ) { 
+                        processTrieResults(resultsFromPartialTrie);
+                        if ( !resultsCountVisible) { displayResultsCount(); }
+                    }
                 }
                 else {  // current chars did not produce matches
                     displayNoResults();
@@ -191,7 +197,10 @@ export const RecipeModule = (function() {
 
                 if ( suggestionsFromTrie.length > 0 ) {
                     processTrieSuggestions(suggestionsFromTrie);
-                    if ( resultsFromTrie.length > 0 ) { processTrieResults(resultsFromTrie); }
+                    if ( resultsFromTrie.length > 0 ) { 
+                        processTrieResults(resultsFromTrie);
+                        if ( !resultsCountVisible) { displayResultsCount(); }
+                    }
                 }
                 else {  // current chars did not produce matches
                     displayNoResults();
@@ -217,7 +226,7 @@ export const RecipeModule = (function() {
             }
         });
         // BROWSER - PERF TESTS --------------------
-        t1 = performance.now();
+        // t1 = performance.now();
         // -----------------------------------------
 
         setResults(finalArrOfRecipes); // store results array
@@ -225,7 +234,7 @@ export const RecipeModule = (function() {
         if ( finalArrOfRecipes.length > 0 ) {
             // console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
             let currentSearchterm = getCurrentSearchterm();
-            console.log('******* FIND MATCHES FOR SEARCH TERM : ', currentSearchterm ,' AND RETRIEVE RESULTS TOOK', t1 - t0, 'milliseconds' ,'\n','----> RESULTS===',finalArrOfRecipes);
+            // console.log('******* FIND MATCHES FOR SEARCH TERM : ', currentSearchterm ,' AND RETRIEVE RESULTS TOOK', t1 - t0, 'milliseconds' ,'\n','----> RESULTS===',finalArrOfRecipes);
         }
         
         // BROWSER - PERF TESTS --------------------
@@ -306,6 +315,7 @@ export const RecipeModule = (function() {
         // order display of list results for this word
         setResults(suggestedRecipes);
         displaySearchResults(suggestedRecipes);
+        if ( !resultsCountVisible) { displayResultsCount(); }
         
         // reset / close suggestion list
         resetSuggestionsBlock(); //UI
@@ -329,6 +339,7 @@ export const RecipeModule = (function() {
         } else { 
             setResults(results);
             displaySearchResults(results);
+            if ( !resultsCountVisible) { displayResultsCount(); }
         }
         resetSuggestionsBlock(); //UI
         resetSuggestions(); // reset suggestions data
@@ -363,7 +374,7 @@ export const RecipeModule = (function() {
     }
 
     // case where results from adv search exist, and user resets main search input field
- 
+
 
     // DISPLAY RECIPE LIST BY SEARCH TERM ----------------
     // when an array of results for the search term is ready to be displayed in UI
@@ -387,10 +398,12 @@ export const RecipeModule = (function() {
         updateAdvancedSearchView(arrayOfCategoryElements); // = array of arrays [appliancesList, ustensilsList, ingredientsList]
     }
 
-    // DISPLAY NO RESULTS MESSAGE
+    // DISPLAY NO RESULTS MESSAGE / RESULTS COUNT
+
     let noResultsBlock = document.createElement('div');
     noResultsBlock.setAttribute('id', 'no-results-message');
     noResultsBlock.setAttribute('class','no-results-message' );
+
     let noResultsMessage = document.createTextNode('Pas de résultat pour la recherche!');
     noResultsBlock.appendChild(noResultsMessage);
 
@@ -398,9 +411,25 @@ export const RecipeModule = (function() {
         const advancedSearchWrapper = document.querySelector('.adv-search-wrapper');
         root.insertBefore(noResultsBlock, advancedSearchWrapper);
     }
+    function displayResultsCount() {
+        let resultsBlock = document.createElement('div');
+        resultsBlock.setAttribute('id', 'results-message');
+        resultsBlock.setAttribute('class','results-message' );
+        let resultsCount = getResultsCount();
+        let resultsCountMessage = document.createTextNode(resultsCount + ' recipes contain this search');
+        resultsBlock.appendChild(resultsCountMessage);
+        const advancedSearchWrapper = document.querySelector('.adv-search-wrapper');
+        root.insertBefore(resultsBlock, advancedSearchWrapper);
+        resultsCountVisible = true;
+    }
+
     function removeNoResults() {
         let noResultsBlock = document.querySelector('#no-results-message');
         if (root.contains(noResultsBlock)) { root.removeChild(noResultsBlock); }
+    }
+    function removeResultsBlock() {
+        let resultsBlock = document.querySelector('#results-message');
+        if (root.contains(resultsBlock)) { root.removeChild(resultsBlock); resultsCountVisible = false;}
     }
 
     function resetAllForNewSearch() {
@@ -408,6 +437,7 @@ export const RecipeModule = (function() {
         resetSuggestions();
         resetSuggestionsBlock();
         removeNoResults();
+        removeResultsBlock();
     }
 
     // SEARCH FUNCTIONALITY : ADVANCED SEARCH ====================================================================================================================
@@ -531,12 +561,17 @@ export const RecipeModule = (function() {
             resetAllForNewSearch(); setAdvancedSearchResults([]);
             let res = processCurrentMainSearch(currentVal);
             displaySearchResults(res);
+            if ( !resultsCountVisible) { displayResultsCount(); }
+            //update count
+            
+
         } else {  resetDefaultView(); }
     }
 
     function resetToAdvSearchResults() {
         let res = getAdvancedSearchResults();
         displaySearchResults(res);
+
     }
 
 
@@ -552,6 +587,7 @@ export const RecipeModule = (function() {
         btn.click(event); 
         let inputField = document.querySelector('#searchInto-'+ categoryName);
         inputField.value = word; // make selected word the current search word of input field
+
     }
 
     function processAdvancedSearch(searchTerm, currentCategoryName) {
@@ -565,6 +601,8 @@ export const RecipeModule = (function() {
         // ADD partial DATA TO A TREE 
         mapDataToTree(advancedSearchResults, true);
         displaySearchResults(advancedSearchResults);
+        if ( !resultsCountVisible) { displayResultsCount(); }
+
     }
 
     // method used to close a menu if another one is called to open
@@ -596,6 +634,7 @@ export const RecipeModule = (function() {
         resetAllForNewSearch:resetAllForNewSearch,
         resetDefaultView:resetDefaultView,
         removeNoResults:removeNoResults,
+        removeResultsBlock: removeResultsBlock,
 
         retrieveFirstSuggestion: retrieveFirstSuggestion,
         displaySearchResults: displaySearchResults,

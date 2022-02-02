@@ -22,7 +22,8 @@ export class SearchBar extends HTMLElement {
                         <i class="fa fa-times-circle-o"></i>
                     </span>
                 </div>
-            </div>`;
+            </div>
+            `;
 
         const mainInputSearch = this.querySelector('#main-search-input');
         
@@ -47,6 +48,9 @@ export class SearchBar extends HTMLElement {
             return mainInputSearch.value = '';
         }
 
+        
+        
+
         // prepare a wrapper for incoming suggestions: it will be empty and non visible until items come in
         const suggestionsWrapperParent = this.querySelector('.form-outline');
         // create a DIV element that will contain the suggestions
@@ -60,7 +64,9 @@ export class SearchBar extends HTMLElement {
         let inputFieldTouched = false;
 
         mainInputSearch.addEventListener('input', function(event){
-            currentSearchTerm = event.target.value;
+
+            currentSearchTerm = event.target.value.toLowerCase();
+            console.log('currentSearchTerm=>', currentSearchTerm)
             if ( currentSearchTerm === ' ') { currentSearchTerm = '-'; } // deal with spaces represented in trie with '-' {
             RecipeModule.processCurrentMainSearch(currentSearchTerm);
             inputFieldTouched = true;
@@ -69,7 +75,7 @@ export class SearchBar extends HTMLElement {
 
         // CASE WHERE USER USES BACKSPACE KEY to delete chars
         mainInputSearch.addEventListener('keydown', function(event){
-            currentSearchTerm = event.target.value;
+            currentSearchTerm = event.target.value.toLowerCase();
             if ( event.key === 'Backspace') {
                 handleManualSearchReset();
             }
@@ -85,6 +91,8 @@ export class SearchBar extends HTMLElement {
         // case where user deletes chars until field = empty or deletes the whole searchterm
         // when input has been touched + searchterm is empty + focus still on input
         function handleManualSearchReset(){
+            RecipeModule.removeNoResults();
+            RecipeModule.removeResultsBlock();
             if ( inputFieldTouched && !currentSearchTerm && mainInputSearch == document.activeElement ){
                 console.log('NEW SEARCH PENDING');
 

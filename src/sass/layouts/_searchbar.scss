@@ -2,7 +2,7 @@
 .form-outline {
     position: relative; // for suggestions wrapper abs pos
     height: 40px;
-    .icon-search { height:100%;}
+    .icon-search { height:100%;position:absolute; right:0;}
     @include border-radius(5px);
 }
 .form-outline, .form-outline input {
@@ -14,7 +14,11 @@
     @include max-600px {
         font-size: 0.7em;}
     }
+.results-amount {
+    width:100%;
+    height: 30px;
 
+}
 
 // suggestions wrapper
 .main-suggestions {
@@ -30,8 +34,10 @@
     }
 }
 // no results message
-.no-results-message {
+.no-results-message, .results-message {
+    display: flex;
+    
     border: 1px solid orange; @include border-radius(5px);
     color: orange;
-    padding:1%; margin:1%;
+    padding:1%; margin-top:1%;
 }

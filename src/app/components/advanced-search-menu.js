@@ -162,6 +162,8 @@ export class CollapsingMenu extends HTMLElement{
             let word = event.target.innerText; // text inside <p> element where event occurs
             let inputField = document.querySelector('#searchInto-'+ categoryName);
             inputField.value = word; // make selected word the current search word of input field
+            
+            handleSelectItemInput(event);
         }
 
         function handleSelectItemInput(event) {
@@ -177,7 +179,7 @@ export class CollapsingMenu extends HTMLElement{
             // console.log('currentCategoryName', currentCategoryName);
             inputFieldTouched = true;
             // and then CONFIRM CHOICE by pressing ENTER:
-            if ( event.key === 'Enter') {
+            if ( event.key === 'Enter' ) {
                 // launch search for term in current results
                 RecipeModule.processAdvancedSearch(searchTerm, currentCategoryName);
                 // a new tag for search word is generated above menus if term exists in api data
@@ -259,6 +261,7 @@ export class CollapsingMenu extends HTMLElement{
             if ( inputFieldTouched && !searchTerm && searchInputField == document.activeElement ){
                 currentSuggestions = []; // empty previous data
                 RecipeModule.removeNoResults(); // remove no results message if needed
+                RecipeModule.removeResultsBlock();
                 resetSuggestions(currentSuggestions);// remove dom suggestions
                 // hide suggestions wrapper
                 suggestionsWrapper.style.display = 'none';
