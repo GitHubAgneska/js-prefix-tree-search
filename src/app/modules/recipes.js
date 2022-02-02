@@ -9,7 +9,7 @@ import {HeaderBaseTemplate} from '../components/header';
 import {treatUnits, checkDoublonsBeforeAddingToArray, checkString} from '../utils/process-api-data';
 import {mapDataToTree, searchInTree, getTrieResults, getTrieSuggestions, searchInPartialTree, getPartialTrieResults, getPartialTrieSuggestions} from '../utils/trie-search4';
 import {advancedSearch} from '../utils/search-algo';
-
+import {removePunctuation} from '../utils/process-api-data';
 
 /* ================================================== */
 /* MODULE IN CHARGE OF ALL COMPONENTS + LOGIC */
@@ -156,9 +156,9 @@ export const RecipeModule = (function() {
         // t0 = 0; t1 = 0; console.log('resetting t0 /t1');
         // console.log('searchTerm===', searchTerm);
         
-        resetAllFromPreviousSearch(); resetSuggestionsBlock();removeNoResults();
+        resetAllFromPreviousSearch(); resetSuggestionsBlock();removeNoResults();removeResultsBlock();
         suggestionsFromTrie =[];
-        currentSearchTerm += searchTerm.toLowerCase();;
+        currentSearchTerm += searchTerm.toLowerCase();
 
         // check if search in categories was done before main search
         // in which case, the main search will operate on a trie of these existing results
@@ -170,7 +170,6 @@ export const RecipeModule = (function() {
             // BROWSER - PERF TESTS --------------------
             // t0 = performance.now();
             // -----------------------------------------
-            
             if ( advRes.length ) { // if some results from advanced search exist
                 
                 searchInPartialTree(currentSearchTerm);
@@ -229,7 +228,7 @@ export const RecipeModule = (function() {
         // t1 = performance.now();
         // -----------------------------------------
 
-        setResults(finalArrOfRecipes); // store results array
+        if (finalArrOfRecipes)  setResults(finalArrOfRecipes); // store results array
 
         if ( finalArrOfRecipes.length > 0 ) {
             // console.log('RECIPES ARRAY AS RECEIVED BY MODULE====',finalArrOfRecipes );
@@ -576,9 +575,12 @@ export const RecipeModule = (function() {
 
 
 
-    //  ======== !! TO REVIEW : REDEFINITION OF EXISTING METHOD in CollapsingMenu component : 
+    //  ======== !! TO REVIEW : REDEFINITION OF EXISTING METHODS in CollapsingMenu component : 
     // ISSUE = init categories lists items DEFAULT = done in component, BUT UPDATING categories lists items = done here in MODULE  ========= TO REVIEW 
     // handle select item in list : send it into input field
+    let currentTags = document.querySelectorAll('.searchTag');
+    let caretUp = document.querySelector('#caret-up');
+
     function selectItemInList(event, categoryName) { 
         // console.log('categoryName===', categoryName);
         let word = event.target.innerText; // text inside <p> element where event occurs
@@ -587,8 +589,56 @@ export const RecipeModule = (function() {
         btn.click(event); 
         let inputField = document.querySelector('#searchInto-'+ categoryName);
         inputField.value = word; // make selected word the current search word of input field
+        
+        let currentCategoryName = inputField.getAttribute('id');
+        currentCategoryName = currentCategoryName.slice(11, currentCategoryName.length);
+        processAdvancedSearch(word, currentCategoryName);
 
+        let searchItemTag = createTag(word);
+        initTagsWrapper();
+        let tagsWrapper = document.querySelector('#tagsWrapper');
+        tagsWrapper.appendChild(searchItemTag);
+        setTagsList(word); // include current searchterm in tags list
+        // close menu
+        if (caretUp) caretUp.click();
     }
+    const parentAdvancedSearchWrapper = document.querySelector('.adv-search-wrapper');
+    function initTagsWrapper() {
+        if (parentAdvancedSearchWrapper && !parentAdvancedSearchWrapper.contains(document.querySelector('#tagsWrapper'))) {
+            let tagsWrapper = document.createElement('div');
+            tagsWrapper.setAttribute('id', 'tagsWrapper');
+            tagsWrapper.setAttribute('class', 'tagsWrapper');
+            parentAdvancedSearchWrapper.prepend(tagsWrapper); // insert in 1st position
+        }
+        else { return; }
+    }
+    let tagsWrapper = document.querySelector('#tagsWrapper')
+    let setTagsList = function(tag) { tagsWrapper? tagsWrapper.push(tag) : initTagsWrapper() }; // keep track of tags to prevent displaying the same one more than once
+    
+     // create new tag
+    function createTag(searchTerm) { 
+        let searchItemTag = document.createElement('div');
+        searchItemTag.setAttribute('class', 'searchTag');
+        searchItemTag.setAttribute('id', 'searchTag-' + searchTerm );
+
+        let tagCloseIcon = document.createElement('i');
+        tagCloseIcon.setAttribute('class', 'fa fa-times-circle-o');
+        tagCloseIcon.setAttribute('id', 'close-'+ searchTerm);
+
+        const containsParenthesesRegex = /\((.*)\)/;
+        if ( containsParenthesesRegex.test(searchTerm) ){ // ---------- to review -- used in 1 or 2 cases only
+            removePunctuation(searchTerm);
+        }
+        let tagText = document.createTextNode(searchTerm);
+        searchItemTag.appendChild(tagText);
+        searchItemTag.appendChild(tagCloseIcon);
+        
+        return searchItemTag;
+    }
+    
+
+
+
 
     function processAdvancedSearch(searchTerm, currentCategoryName) {
         // here, results come either from a sorted list (current results) or default api recipes list

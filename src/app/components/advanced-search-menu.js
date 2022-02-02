@@ -100,13 +100,11 @@ export class CollapsingMenu extends HTMLElement{
         menuHeaderClose.addEventListener('click', function(event){ menuOpen(event),{ once: true }; }, false);
         
         function menuOpen(event) {
-
             // make sure suggestions = reset from last search
             suggestionsWrapper.style.display = 'none';
             resetSuggestions();
             cardBodyList.style.display = 'flex';
 
-        
             menuHeaderClose = event.currentTarget; // element that handles event
             event.stopPropagation();
             
@@ -157,13 +155,27 @@ export class CollapsingMenu extends HTMLElement{
         // press ENTER to confirm selected list item or typed in word to search
         searchInputField.addEventListener('keydown', function(event){ handleSelectItemInput(event); }, false);
 
-        // handle select item in list : send it into input field
+        // handle select item in list : send it into input field + add tag + launch search
         function selectItemInList(event) {
             let word = event.target.innerText; // text inside <p> element where event occurs
             let inputField = document.querySelector('#searchInto-'+ categoryName);
             inputField.value = word; // make selected word the current search word of input field
             
-            handleSelectItemInput(event);
+            let currentCategoryName = inputField.getAttribute('id');
+            currentCategoryName = currentCategoryName.slice(11, currentCategoryName.length);
+            RecipeModule.processAdvancedSearch(word, currentCategoryName);
+
+            // + add tag + launch search => RIGHT AWAY !
+            let currentTags = getTagsList();
+                if ( !currentTags.includes(word) ) {
+                    let searchItemTag = createTag(word);
+                    initTagsWrapper();
+                    let tagsWrapper = document.querySelector('#tagsWrapper');
+                    tagsWrapper.appendChild(searchItemTag);
+                    setTagsList(word); // include current searchterm in tags list
+                    // close menu
+                    caretUp.click();
+                }
         }
 
         function handleSelectItemInput(event) {
@@ -252,7 +264,6 @@ export class CollapsingMenu extends HTMLElement{
             if (currentSuggestions) { 
                 while( currentSuggestions.length > 0 ) { currentSuggestions.pop(); } // remove arr items
             } else { return; }
-            
         }
 
         // case where user deletes chars until field = empty or deletes the whole searchterm
@@ -275,12 +286,10 @@ export class CollapsingMenu extends HTMLElement{
         let getTagsList = function() { return currentTags; }; // AND is used by search method that needs an up-to-date array of tags
         
         let removeTagFromList = function(tag) {
-            
-            // let currenttags = getTagsList();
-            // console.log('currenttags==', currenttags);  
-
             let tagIndex = currentTags.indexOf(tag);
             currentTags.splice(tagIndex, 1);
+            RecipeModule.removeNoResults(); // remove no results message if needed
+            RecipeModule.removeResultsBlock();
             // console.log('currenttags AFTER REMOVE==', currentTags, 'type==', typeof(currentTags));
             return currentTags;
         };
